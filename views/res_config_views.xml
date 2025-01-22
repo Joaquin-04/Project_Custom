@@ -1,0 +1,14 @@
+<odoo>
+    <record id="view_res_config_settings" model="ir.ui.view">
+        <field name="name">res.config.settings.inherit.project</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.view_res_config_settings"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='default_settings']" position="inside">
+                <div class="app_settings_block">
+                    <field name="next_project_number"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
