@@ -13,6 +13,11 @@ class ProjectProject(models.Model):
     ], string="Tipo de Obra")
 
     
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        domain = args + ['|', ('obra_nr', operator, name), ('name', operator, name)]
+        return super(ProjectProject, self).name_search(name, domain, operator, limit)
     
 
     @api.model
