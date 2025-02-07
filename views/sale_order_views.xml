@@ -2,12 +2,11 @@
     <record id="view_order_form_inherit_project" model="ir.ui.view">
         <field name="name">sale.order.form.inherit.project</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="priority" eval="161"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet//group[@name='sale_order_dates']" position="after">
-                <group string="Proyecto">
-                    <field name="project_id" domain="[('obra_nr', '!=', False)]"/>
-                </group>
+            <xpath expr="//field[@name='x_studio_nv_numero_de_obra_relacionada']" position="after">
+                    <field name="project_id" string="Proyecto"/>
             </xpath>
         </field>
     </record>
