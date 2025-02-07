@@ -13,8 +13,6 @@
     'data': [
         'data/ir_sequence_data.xml',
         'security/ir.model.access.csv',
-        'views/sale_order_views.xml',
-        'views/project_views.xml',
     ],
     'installable': True,
     'application': True,
