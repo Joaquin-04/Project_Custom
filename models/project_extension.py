@@ -7,29 +7,41 @@ _logger = logging.getLogger(__name__)
 class ProjectProject(models.Model):
     _inherit = 'project.project'
 
-    obra_nr = fields.Char(string="Número de Obra", readonly=True, copy=False)
+    obra_nr = fields.Char(string="Número de Obra", readonly=False, copy=False,store=True)
     
     obra_padre_id = fields.Many2one(
         'project.project',
         string="Obra Padre",
         domain="[('company_id', 'in', allowed_company_ids)]",  # Filtra por compañías permitidas
+        no_create=True
     )
 
 
     def _compute_display_name(self):
         for record in self:
-            record.display_name = f"[{record.obra_nr}] {record.name}" if record.obra_nr else record.name
+            if record.obra_nr:
+                record.display_name = f"[{record.obra_nr}] {record.name}"
+            else:
+                record.display_name = record.name
 
-    
     @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):
-        """ Permite buscar proyectos por 'obra_nr' y 'name' en cualquier parte del sistema """
-        args = args or []
+    def _name_search(self, name='', domain=None, operator='ilike', limit=100, order=None, name_get_uid=None):
+        """Búsqueda por 'name' o 'obra_nr' en campos Many2one."""
+
+        if domain is None:  
+            domain = []  # Si domain es None, lo inicializamos como una lista vacía
+        
         if name:
-            domain = ['|', ('obra_nr', operator, name), ('name', operator, name)]
-        else:
-            domain = []
-        return super(ProjectProject, self).name_search(name, domain + args, operator, limit)
+            # Agregar condiciones de búsqueda (obra_nr o name)
+            domain = ['|', ('obra_nr', operator, name), ('name', operator, name)] + domain
+            
+        #_logger.warning(f"*****************************  _name_search ****************************")
+        #_logger.warning(f"name: {name} \ndomain {domain} \noperator: {operator} \nlimit: {limit} \norder: {order} \nname_get_uid: {name_get_uid}")
+        rtn = self._search(domain, limit=limit, order=order)
+        #_logger.warning(f"rtn: {rtn}")
+        return rtn
+        
+
     
 
     @api.model

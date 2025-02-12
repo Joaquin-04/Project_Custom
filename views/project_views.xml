@@ -9,9 +9,13 @@
         <field name="arch" type="xml">
             <xpath expr="//sheet" position="inside">
                 <group string="Información de Obra">
-                    <field name="obra_nr" readonly="1"/>
-                    <field name="obra_tp_cd"/>
-                </group>
+                    <field name="obra_nr"/>
+                    <field name="obra_padre_id"
+                           domain="[('company_id', 'in', allowed_company_ids)]"
+                           context="{'allowed_company_ids': allowed_company_ids}"
+                           options="{'no_create':True,'no_create_edit':True}"
+                    />
+                  </group>
             </xpath>
         </field>
     </record>

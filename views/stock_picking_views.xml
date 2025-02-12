@@ -3,12 +3,13 @@
         <field name="name">stock.picking.form.inherit.project</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="priority" eval="165"/>
+        <field name="active" eval="1"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet//group[@name='picking_information']" position="after">
-                <group string="Proyecto">
-                    <field name="project_id" domain="[('obra_nr', '!=', False)]"/>
-                </group>
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[1]/field[@name='location_dest_id'][2]" position="after">
+                <field name="project_id" string="Proyecto" domain="[('company_id', 'in', allowed_company_ids)]" context="{'allowed_company_ids': allowed_company_ids}" options="{'no_create':True,'no_create_edit':True}"/>
             </xpath>
+            
         </field>
     </record>
 </odoo>
