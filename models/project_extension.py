@@ -16,6 +16,48 @@ class ProjectProject(models.Model):
         no_create=True
     )
 
+    color_proyect = fields.Many2one(
+        'project.color',
+         string="Color proyecto",
+         #ObraColoCd
+    )
+
+
+    estado_obra_proyect = fields.Many2one(
+        'project.obraestado',
+         string="Estado obra",
+         #ObraEstado
+    )
+
+
+    pais_provincia_proyect = fields.Many2one(
+        'project.provincia',
+         string="Pais - Provincia",
+         #ObraEstado
+    )
+
+
+
+
+
+
+
+    
+    _sql_constraints = [
+        ('obra_nr_unique', 'UNIQUE(obra_nr)', '¡El número de obra debe ser único!'),
+    ]
+
+    @api.constrains('obra_nr')
+    def _check_obra_nr_unique(self):
+        for project in self:
+            if project.obra_nr:
+                existing = self.search([
+                    ('obra_nr', '=', project.obra_nr),
+                    ('id', '!=', project.id)
+                ], limit=1)
+                if existing:
+                    raise ValidationError(f"¡El número de obra {project.obra_nr} ya existe!")
+
 
     def _compute_display_name(self):
         for record in self:
@@ -57,6 +99,15 @@ class ProjectProject(models.Model):
             #_logger.warning(f"next_value: {next_value}")
 
             vals['obra_nr'] = next_value
+
+        # Generar obra_nr único incluso si la secuencia es modificada
+        if not vals.get('obra_nr'):
+            while True:
+                next_value = self.env['ir.sequence'].next_by_code('custom.project.number')
+                existing = self.search_count([('obra_nr', '=', next_value)])
+                if not existing:
+                    vals['obra_nr'] = next_value
+                    break
         
         # Crear cuenta analítica automáticamente
         if not vals.get('analytic_account_id'):

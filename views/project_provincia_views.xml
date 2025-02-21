@@ -1,0 +1,44 @@
+<odoo>
+    <!-- Vista de lista (Tree View) -->
+    <record id="view_project_provincia_tree" model="ir.ui.view">
+        <field name="name">project.provincia.tree</field>
+        <field name="model">project.provincia</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="pais_cd" string="PaisCd"/>
+                <field name="prvn_cd" string="PrvnCd"/>
+                <field name="prvn_nm" string="PrvnNm"/>
+                <field name="pais_prvn_crc" string="PaisPrvnCrc"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de formulario (Form View) -->
+    <record id="view_project_provincia_form" model="ir.ui.view">
+        <field name="name">project.provincia.form</field>
+        <field name="model">project.provincia</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="pais_cd" string="PaisCd"/>
+                        <field name="prvn_cd" string="PrvnCd"/>
+                        <field name="prvn_nm" string="PrvnNm"/>
+                        <field name="pais_prvn_crc" string="PaisPrvnCrc"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la vista de lista y formulario -->
+    <record id="action_project_provincia" model="ir.actions.act_window">
+        <field name="name">Provincia</field>
+        <field name="res_model">project.provincia</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menú en Configuraciones -->
+    <menuitem id="menu_project_provincia_root" name="Provincia" sequence="10"/>
+    <menuitem id="menu_project_provincia_config" name="Provincias" parent="project.menu_project_config" action="action_project_provincia" sequence="10"/>
+</odoo>
