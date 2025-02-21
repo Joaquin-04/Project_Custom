@@ -1,0 +1,54 @@
+<odoo>
+
+    <!-- Vista de lista (Tree View) -->
+    <record id="view_ubic_tree" model="ir.ui.view">
+        <field name="name">project.ubic.tree</field>
+        <field name="model">project.ubic</field>
+        <field name="arch" type="xml">
+            <tree>
+                 <field name="ubic_cd" string="UbicCd"/>
+                    <field name="ubic_nm" string="UbicNm"/>
+                    <field name="ubic_nm_tt" string="UbicNmTt"/>
+                    <field name="ubic_usable" string="UbicUsable"/>
+                    <field name="ubic_cp" string="UbicCP"/>
+                    <field name="ubic_area_cd" string="UbicAreaCd"/>
+                    <field name="ubic_crc" string="UbicCrc"/>
+                    <field name="ubic_dist_a_fabr" string="UbicDistAFabr"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de formulario (Form View) -->
+    <record id="view_ubic_form" model="ir.ui.view">
+        <field name="name">project.ubic.form</field>
+        <field name="model">project.ubic</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="ubic_cd" string="UbicCd"/>
+                        <field name="ubic_nm" string="UbicNm"/>
+                        <field name="ubic_nm_tt" string="UbicNmTt"/>
+                        <field name="ubic_usable" string="UbicUsable"/>
+                        <field name="ubic_cp" string="UbicCP"/>
+                        <field name="ubic_area_cd" string="UbicAreaCd"/>
+                        <field name="ubic_crc" string="UbicCrc"/>
+                        <field name="ubic_dist_a_fabr" string="UbicDistAFabr"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la vista de lista y formulario -->
+    <record id="action_ubic" model="ir.actions.act_window">
+        <field name="name">Ubicaciones</field>
+        <field name="res_model">project.ubic</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menú en Configuraciones -->
+    <menuitem id="menu_ubic_root" name="Ubicaciones" sequence="10"/>
+    <menuitem id="menu_ubic_config" name="Gestión de Ubicaciones" parent="project.menu_project_config" action="action_ubic" sequence="10"/>
+
+</odoo>

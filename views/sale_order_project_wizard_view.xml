@@ -4,11 +4,20 @@
         <field name="model">sale.order.project.wizard</field>
         <field name="arch" type="xml">
             <form string="Seleccionar o Crear Proyecto">
+                <h1>Seleccionar o Crear Proyecto</h1>
                 <group>
                     <field name="sale_order_id" invisible="1"/>
-                    <field name="project_id" domain="[('company_id', '=', sale_order_id.company_id)]"/>
-                    <field name="create_new"/>
-                    <field name="new_project_name" invisible="create_new == False" required="create_new == True"/>
+                    <field name="company_id" invisible="1"/>
+                    <!-- Si no se crea un nuevo proyecto, se muestra la selección de un proyecto existente -->
+                    <field name="project_id" invisible="create_new == True" required="create_new == False" string="Proyecto"/>
+                    
+                    <field name="create_new" string="Crear un Nuevo Proyecto?"/>
+            
+                    <!-- Si se crea un nuevo proyecto, se muestran estos campos -->
+                    <group invisible="create_new == False">
+                        <field name="new_project_name" required="create_new == True" />
+                        <field name="obra_padre_id" />
+                    </group>
                 </group>
                 <footer>
                     <button string="Aplicar" type="object" name="action_apply" class="btn-primary"/>
@@ -26,3 +35,5 @@
         <field name="target">new</field>
     </record>
 </odoo>
+
+

@@ -4,3 +4,9 @@ from . import sale_order_extension
 from . import stock_picking_extension
 from . import crm_lead
 from . import sale_order_project_wizard
+from . import project_color
+from . import project_obra_estado
+from . import project_provincia
+from . import project_LnArti
+from . import project_ObraTipo
+from . import project_Ubi

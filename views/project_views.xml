@@ -15,6 +15,32 @@
                            context="{'allowed_company_ids': allowed_company_ids}"
                            options="{'no_create':True,'no_create_edit':True}"
                     />
+                    <field name="color_proyect"
+                           options="{'no_create':True,'no_create_edit':True}"/>
+                    
+                    <field name="estado_obra_proyect"
+                           options="{'no_create':True,'no_create_edit':True}"/>    
+
+
+                    <field name="pais_provincia_proyect"
+                           options="{'no_create':True,'no_create_edit':True}"/> 
+
+                    <field name="lnart_proyect"
+                           options="{'no_create':True,'no_create_edit':True}"/> 
+                    
+                    <field name="obratipo_proyect"
+                           options="{'no_create':True,'no_create_edit':True}"/> 
+
+                           
+                    <field name="obratipo_ubi"
+                           options="{'no_create':True,'no_create_edit':True}"/>
+                    <field name="cod_postal_proyect"
+                           options="{'no_create':True,'no_create_edit':True}"/>
+        
+                    <field name="ubi_area_proyect"
+                           options="{'no_create':True,'no_create_edit':True}"/>
+                    
+                     
                   </group>
             </xpath>
         </field>

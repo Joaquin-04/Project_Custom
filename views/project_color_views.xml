@@ -1,0 +1,44 @@
+<odoo>
+
+    <!-- Vista de lista (Tree View) -->
+    <record id="view_project_color_tree" model="ir.ui.view">
+        <field name="name">project.color.tree</field>
+        <field name="model">project.color</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="cod" string="Código"/>
+                <field name="name" string="Nombre"/>
+                <field name="descripcion" string="Descripción"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de formulario (Form View) -->
+    <record id="view_project_color_form" model="ir.ui.view">
+        <field name="name">project.color.form</field>
+        <field name="model">project.color</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="cod" string="Código"/>
+                        <field name="name" string="Nombre"/>
+                        <field name="descripcion" string="Descripción"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la vista de lista y formulario -->
+    <record id="action_project_color" model="ir.actions.act_window">
+        <field name="name">Colores de Proyecto</field>
+        <field name="res_model">project.color</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menú en Configuraciones -->
+    <menuitem id="menu_project_color_root" name="Colores" sequence="10"/>
+    <menuitem id="menu_project_color_config" name="Gestión de Colores" parent="project.menu_project_config" action="action_project_color" sequence="10"/>
+
+</odoo>

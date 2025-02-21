@@ -1,0 +1,44 @@
+<odoo>
+
+    <!-- Vista de lista (Tree View) -->
+    <record id="view_project_lnarti_tree" model="ir.ui.view">
+        <field name="name">project.lnarti.tree</field>
+        <field name="model">project.lnarti</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="cod" string="LnArtiCd"/>
+                <field name="name" string="LnArtiNm"/>
+                <field name="descripcion" string="LnArtiCrc"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de formulario (Form View) -->
+    <record id="view_project_lnarti_form" model="ir.ui.view">
+        <field name="name">project.lnarti.form</field>
+        <field name="model">project.lnarti</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="cod" string="LnArtiCd"/>
+                        <field name="name" string="LnArtiNm"/>
+                        <field name="descripcion" string="LnArtiCrc"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la vista de lista y formulario -->
+    <record id="action_project_lnarti" model="ir.actions.act_window">
+        <field name="name">LnArti</field>
+        <field name="res_model">project.lnarti</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menú en Configuraciones -->
+    <menuitem id="menu_project_lnarti_root" name="LnArti" sequence="10"/>
+    <menuitem id="menu_project_lnarti_config" name="LnArti" parent="project.menu_project_config" action="action_project_lnarti" sequence="10"/>
+
+</odoo>
