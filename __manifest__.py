@@ -20,7 +20,10 @@
         'views/sale_order_project_wizard_view.xml',
         'views/project_color_views.xml',
         'views/project_obra_estado_views.xml',
-        'views/project_provincia_views.xml'
+        'views/project_provincia_views.xml',
+        'views/project_LnArti_views.xml',
+        'views/project_ObraTipo_views.xml',
+        'views/project_Ubi_views.xml'
     ],
     'installable': True,
     'application': True,

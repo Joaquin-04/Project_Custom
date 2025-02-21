@@ -33,14 +33,84 @@ class ProjectProject(models.Model):
     pais_provincia_proyect = fields.Many2one(
         'project.provincia',
          string="Pais - Provincia",
-         #ObraEstado
+         #PaisProvincia
+    )
+
+    lnart_proyect = fields.Many2one(
+        'project.lnarti',
+         string="Ln Artic",
+         #LnArtic
+    )
+
+    obratipo_proyect = fields.Many2one(
+        'project.obratipo',
+         string="Obra Tipo",
+         #Obra tipo
     )
 
 
+    obratipo_ubi = fields.Many2one(
+        'project.ubic',
+         string="Obra Ubicacion",
+         #Obra tipo
+    )
 
 
+    cod_postal_proyect = fields.Integer(
+        compute="_compute_cod_postal_proyect",
+        string="Cod Postal",
+    )
 
 
+    ubi_area_proyect = fields.Integer(
+        compute="_compute_ubi_area_proyect",
+        string="Ubi Area",
+    )
+
+    
+    @api.depends('obratipo_ubi')
+    def _compute_cod_postal_proyect(self):
+        for record in self:
+            if record.obratipo_ubi:
+                # Asignamos el valor del código postal desde 'ubic_cp' de 'obratipo_ubi'
+                record.cod_postal_proyect = record.obratipo_ubi.ubic_cp
+            else:
+                # Si no hay obra seleccionada, lo dejamos vacío o en 0
+                record.cod_postal_proyect = 0
+
+    @api.depends('obratipo_ubi')
+    def _compute_ubi_area_proyect(self):
+        for record in self:
+            record.ubi_area_proyect = record.obratipo_ubi.ubic_area_cd if record.obratipo_ubi else ''
+
+
+    
+    
+    """
+    cod_postal_proyect = fields.Integer(
+        compute="_compute_cod_postal_proyect"
+         string="",
+         #Obra tipo
+    )
+
+
+    obratipo_proyect = fields.Char(
+         string="Obra Tipo",
+         #Obra tipo
+    )
+
+
+    #COMPUTES
+
+    @api.depends("ubi_proyect")
+    _compute_cod_postal_proyect(self):"""
+    
+        
+
+    
+
+
+    
 
     
     _sql_constraints = [

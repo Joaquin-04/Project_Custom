@@ -10,7 +10,6 @@ class SaleOrder(models.Model):
     project_id = fields.Many2one(
         'project.project',
         string="Proyecto",
-        domain="[('company_id', 'in', allowed_company_ids)]"
     )
 
 
@@ -35,16 +34,19 @@ class SaleOrder(models.Model):
 
     
     def action_confirm(self):
-            """ Antes de confirmar la venta, abre un wizard para seleccionar o crear un proyecto """
-            if not self.project_id:
-                return {
-                    'type': 'ir.actions.act_window',
-                    'res_model': 'sale.order.project.wizard',
-                    'view_mode': 'form',
-                    'target': 'new',
-                    'context': {'default_sale_order_id': self.id},
-                }
-            return super().action_confirm()
+        """ Antes de confirmar la venta, abre un wizard para seleccionar o crear un proyecto """
+        if not self.project_id:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'sale.order.project.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_sale_order_id': self.id,
+                    'default_sale_company_id':self.company_id
+                },
+            }
+        return super().action_confirm()
 
 
 
