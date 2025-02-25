@@ -1,0 +1,49 @@
+<odoo>
+    <!-- Vista de árbol para SYUSRO -->
+    <record id="view_project_syusro_tree" model="ir.ui.view">
+        <field name="name">project.syusro.tree</field>
+        <field name="model">project.syusro</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="syusro_cd"/>
+                <field name="syusro_nm"/>
+                <field name="syusro_rol"/>
+                <field name="syusro_fc_alta"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de formulario para SYUSRO -->
+    <record id="view_project_syusro_form" model="ir.ui.view">
+        <field name="name">project.syusro.form</field>
+        <field name="model">project.syusro</field>
+        <field name="arch" type="xml">
+            <form string="Usuario SYUSRO">
+                <sheet>
+                    <group>
+                        <field name="syusro_cd"/>
+                        <field name="syusro_nm"/>
+                        <field name="syusro_rol"/>
+                        <field name="syusro_fc_alta"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_project_syusro" model="ir.actions.act_window">
+        <field name="name">Usuarios SYUSRO</field>
+        <field name="res_model">project.syusro</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Crea un nuevo registro para gestionar usuarios SYUSRO.
+            </p>
+        </field>
+    </record>
+
+        <!-- Menú -->
+    <menuitem id="menu_project_config" name="Configuración" parent="project.menu_project_config"/>
+    <menuitem id="menu_project_syusro" name="SyUsro" parent="project.menu_project_config" action="action_project_syusro"/>
+   
+</odoo>

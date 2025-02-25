@@ -11,17 +11,88 @@ class SaleOrder(models.Model):
         'project.project',
         string="Proyecto",
     )
+    
+    def write(self, vals):
+        _logger.warning("Write!!!")
+        _logger.warning(f"valores: {vals}")
+        
+        if 'project_id' in vals:
+            if vals['project_id']:
+                
+                # Se ha asignado un proyecto, obtenemos su información
+                project = self.env['project.project'].browse(vals['project_id'])
+                if project:
+                    new_vals = {}
+                    if project.obra_nr:
+                        new_vals['x_studio_nv_numero_de_obra_relacionada'] = project.obra_nr
+                    else:
+                        new_vals['x_studio_nv_numero_de_obra_relacionada'] = False
+                    if project.obra_padre_id:
+                        new_vals['x_studio_nv_numero_de_obra_padre'] = project.obra_padre_id.obra_nr
+                    else:
+                        new_vals['x_studio_nv_numero_de_obra_padre'] = False
+                    vals.update(new_vals)
+            else:
+                # Se está borrando el proyecto, establecemos los campos en 0 o False
+                vals.update({
+                    'x_studio_nv_numero_de_obra_relacionada': 0,
+                    'x_studio_nv_numero_de_obra_padre': 0,
+                })
+        return super(SaleOrder, self).write(vals)
+
+
+    """
+    def write(self, vals):
+        _logger.warning("Write!!!")
+        _logger.warning(f"valores: {vals}")
+
+        if 'project_id' in vals:
+            # Actualiza la cuenta analítica en las líneas de venta
+            analytic_account = self.project_id.analytic_account_id
+            _logger.warning(f"analytic_account: {analytic_account}")
+            #for line in self.order_line:
+            #    line.analytic_distribution = analytic_account
+
+            # Actualiza los campos de Odoo Studio
+            if self.project_id.obra_nr:
+                _logger.warning(f" obra_nr {self.project_id.obra_nr}")
+                self.x_studio_nv_numero_de_obra_relacionada = self.project_id.obra_nr
+            if self.project_id.obra_padre_id:
+                self.x_studio_nv_numero_de_obra_padre = self.project_id.obra_padre_id.obra_nr
+            else:
+                self.x_studio_nv_numero_de_obra_padre = False
+        else:
+            # Si se limpia el proyecto, se limpian también los campos
+            self.x_studio_nv_numero_de_obra_relacionada = False
+            self.x_studio_nv_numero_de_obra_padre = False
+            
+
+        return super(SaleOrder, self).write(vals)"""
+
 
 
     @api.onchange('project_id')
     def _onchange_project_id(self):
-        _logger.warning(f"_onchange_project_id")
-        """ Al cambiar el proyecto, actualiza la cuenta analítica en todas las líneas de venta """
+        _logger.warning("_onchange_project_id")
         if self.project_id:
+            # Actualiza la cuenta analítica en las líneas de venta
             analytic_account = self.project_id.analytic_account_id
             _logger.warning(f"analytic_account: {analytic_account}")
             for line in self.order_line:
                 line.analytic_distribution = analytic_account
+
+            # Actualiza los campos de Odoo Studio
+            if self.project_id.obra_nr:
+                _logger.warning(f" obra_nr {self.project_id.obra_nr}")
+                self.x_studio_nv_numero_de_obra_relacionada = self.project_id.obra_nr
+            if self.project_id.obra_padre_id:
+                self.x_studio_nv_numero_de_obra_padre = self.project_id.obra_padre_id.obra_nr
+            else:
+                self.x_studio_nv_numero_de_obra_padre = False
+        else:
+            # Si se limpia el proyecto, se limpian también los campos
+            self.x_studio_nv_numero_de_obra_relacionada = False
+            self.x_studio_nv_numero_de_obra_padre = False
 
 
     @api.constrains('project_id', 'company_id')
