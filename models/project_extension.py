@@ -60,7 +60,7 @@ class ProjectProject(models.Model):
     obra_padre_id = fields.Many2one(
         'project.project',
         string="Obra Padre",
-        domain="[('company_id', 'in', allowed_company_ids)]",  # Filtra por compañías permitidas
+        domain="[('company_id', '=', company_id)]",  # Filtra por compañías permitidas
         no_create=True,
         size=29,
         tracking=True
@@ -118,6 +118,12 @@ class ProjectProject(models.Model):
     ubi_area_proyect = fields.Integer(
         compute="_compute_ubi_area_proyect", 
         string="Ubi Area",
+        tracking=True
+    )
+
+    ubi_code = fields.Integer(
+        compute="_compute_ubi_code", 
+        string="Código de ubicación",
         tracking=True
     )
 
@@ -229,7 +235,14 @@ class ProjectProject(models.Model):
     # 8. Cartel Obra (ObraCartEstd) CRM (x_studio_nv_cartel)
     cartel_obra = fields.Selection(
         [
-            ('S', 'Si')
+            ('1- SOLICITAR AUTORIZACION', '1- SOLICITAR AUTORIZACION'),
+            ('2- COLGAR CARTEL', '2- COLGAR CARTEL'),
+            ('3- CARTEL COLGADO', '3- CARTEL COLGADO'),
+            ('4- DESCOLGAR CARTEL', '4- DESCOLGAR CARTEL'),
+            ('8- NO SE PUEDE COLGAR CARTEL', '8- NO SE PUEDE COLGAR CARTEL'),
+            ('7- NO DEJAN COLGAR', '7- NO DEJAN COLGAR'),
+            ('8- CARTEL PERDIDO', '8- CARTEL PERDIDO'),
+            ('9- FIN', '9- FIN'),
         ],
         string="Cartel de Obra",
         tracking=True
@@ -277,6 +290,7 @@ class ProjectProject(models.Model):
         help="Selecciona la provincia a la que pertenece el proyecto.",
         tracking=True
     )
+    
     pais_cd = fields.Char(
         string="Código de País",
         related="provincia_id.pais_cd",
@@ -327,7 +341,7 @@ class ProjectProject(models.Model):
     
     
     @api.depends('company_id')
-    def _compute_empresa_origen_cd(self):
+    def _compute_obra_ref_fisc_cd(self):
         for project in self:
             if project.company_id:
                 # Toma el id de la empresa por defecto
@@ -336,21 +350,24 @@ class ProjectProject(models.Model):
                 # CRISTALIZANDO=4503, NOA=12873, GALVANIZADOS=13225
                 if project.company_id.id == 3:
                     # Cristalizando 
-                    project.obra_ref_fisc_cd = 1
+                    project.obra_ref_fisc_cd = 4503
                 elif project.company_id.id == 2:
                     # Noa Aberturas
-                    project.obra_ref_fisc_cd = 2
+                    project.obra_ref_fisc_cd = 12873
                 elif project.company_id.id == 4:
                     # Galvanizados del Norte
-                    project.obra_ref_fisc_cd = 3
+                    project.obra_ref_fisc_cd = 13225
                 
             else:
                 project.obra_ref_fisc_cd = False
+        
+                
+
 
 
 
     @api.depends('company_id')
-    def _compute_obra_ref_fisc_cd(self):
+    def _compute_empresa_origen_cd(self):
         for project in self:
             if project.company_id:
                 # Toma el id de la empresa por defecto
@@ -359,14 +376,14 @@ class ProjectProject(models.Model):
                 # CRISTALIZANDO=4503, NOA=12873, GALVANIZADOS=13225
                 if project.company_id.id == 3:
                     # Cristalizando 
-                    project.empresa_origen_cd = 4503
+                    project.empresa_origen_cd = 1
                 elif project.company_id.id == 2:
                     # Noa Aberturas
-                    project.empresa_origen_cd = 12873
+                    project.empresa_origen_cd = 2
                 elif project.company_id.id == 4:
                     # Galvanizados del Norte
-                    project.empresa_origen_cd = 13225
-                
+                    project.empresa_origen_cd = 3
+
             else:
                 project.empresa_origen_cd = False
 
@@ -393,10 +410,19 @@ class ProjectProject(models.Model):
                 # Si no hay obra seleccionada, lo dejamos vacío o en 0
                 record.cod_postal_proyect = 0
 
+    
+
     @api.depends('obratipo_ubi')
     def _compute_ubi_area_proyect(self):
         for record in self:
             record.ubi_area_proyect = record.obratipo_ubi.ubic_area_cd if record.obratipo_ubi else ''
+
+    
+    @api.depends('obratipo_ubi')
+    def _compute_ubi_code(self):
+        for record in self:
+            record.ubi_code = record.obratipo_ubi.ubic_cd if record.obratipo_ubi else ''
+            
 
     def _compute_display_name(self):
         for record in self:
@@ -484,7 +510,6 @@ class ProjectProject(models.Model):
         'ubi_area_proyect',
         'nombre_carga_obra',
         'direccion',
-        'fecha_aprobacion_presupuesto',
         'celular_1',
         'telefono_fijo',
         'fax_1',
@@ -586,8 +611,11 @@ class ProjectProject(models.Model):
                 'plan_id': 1,
             })
             vals['analytic_account_id'] = analytic_account.id
+
+        record = super(ProjectProject, self).create(vals)
+        record._onchange_obra_padre_id()
         
-        return super(ProjectProject, self).create(vals)
+        return record
 
 
 

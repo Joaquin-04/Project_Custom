@@ -11,6 +11,9 @@ class SaleOrder(models.Model):
         'project.project',
         string="Proyecto",
     )
+
+    
+
     
     def write(self, vals):
         _logger.warning("Write!!!")
@@ -18,6 +21,8 @@ class SaleOrder(models.Model):
         
         if 'project_id' in vals:
             if vals['project_id']:
+                for reservation in self.material_reservation_ids:
+                    reservation.stage_id = False  # Vacía la etapa cuando cambia el número de proyecto
                 
                 # Se ha asignado un proyecto, obtenemos su información
                 project = self.env['project.project'].browse(vals['project_id'])
@@ -42,32 +47,8 @@ class SaleOrder(models.Model):
 
 
     """
-    def write(self, vals):
-        _logger.warning("Write!!!")
-        _logger.warning(f"valores: {vals}")
-
-        if 'project_id' in vals:
-            # Actualiza la cuenta analítica en las líneas de venta
-            analytic_account = self.project_id.analytic_account_id
-            _logger.warning(f"analytic_account: {analytic_account}")
-            #for line in self.order_line:
-            #    line.analytic_distribution = analytic_account
-
-            # Actualiza los campos de Odoo Studio
-            if self.project_id.obra_nr:
-                _logger.warning(f" obra_nr {self.project_id.obra_nr}")
-                self.x_studio_nv_numero_de_obra_relacionada = self.project_id.obra_nr
-            if self.project_id.obra_padre_id:
-                self.x_studio_nv_numero_de_obra_padre = self.project_id.obra_padre_id.obra_nr
-            else:
-                self.x_studio_nv_numero_de_obra_padre = False
-        else:
-            # Si se limpia el proyecto, se limpian también los campos
-            self.x_studio_nv_numero_de_obra_relacionada = False
-            self.x_studio_nv_numero_de_obra_padre = False
-            
-
-        return super(SaleOrder, self).write(vals)"""
+    
+    """
 
 
 

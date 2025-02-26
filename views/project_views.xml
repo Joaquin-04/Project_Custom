@@ -11,8 +11,6 @@
                     <group string="Información de Obra">
                         <field name="obra_nr"/>
                         <field name="obra_padre_id"
-                               domain="[('company_id', 'in', allowed_company_ids)]"
-                               context="{'allowed_company_ids': allowed_company_ids}"
                                options="{'no_create':True,'no_create_edit':True}"/>
                         <field name="color_proyect"
                                options="{'no_create':True,'no_create_edit':True}"/>
@@ -27,6 +25,7 @@
                                options="{'no_create':True,'no_create_edit':True}"/>
                         <field name="cod_postal_proyect"/>
                         <field name="ubi_area_proyect"/>
+                        <field name="ubi_code"/>
                         <field name="kg_perfileria"/>
                         <field name="nombre_carga_obra"/>
                         <field name="direccion"/>
@@ -63,10 +62,14 @@
                     </group>
                     
                     <group string="Responsables">
-                        <field name="obra_vend_cd"/>
-                        <field name="obra_jefe_cd"/>
-                        <field name="obra_tec_cd"/>
-                        <field name="obra_capa_cd"/>
+                        <field name="obra_vend_cd"
+                            options="{'no_create':True,'no_create_edit':True}"/>
+                        <field name="obra_jefe_cd"
+                            options="{'no_create':True,'no_create_edit':True}"/>
+                        <field name="obra_tec_cd"
+                            options="{'no_create':True,'no_create_edit':True}"/>
+                        <field name="obra_capa_cd"
+                            options="{'no_create':True,'no_create_edit':True}"/>
                     </group>
 
                     <group string="Relaciones">
@@ -88,4 +91,3 @@
         </field>
     </record>
 </odoo>
-

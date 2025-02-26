@@ -16,7 +16,8 @@
                     <!-- Si se crea un nuevo proyecto, se muestran estos campos -->
                     <group invisible="create_new == False">
                         <field name="new_project_name" required="create_new == True" />
-                        <field name="obra_padre_id" />
+                        <field name="obra_padre_id" 
+                            options="{'no_create': True, 'no_create_edit': True}"/>
                     </group>
                 </group>
                 <footer>

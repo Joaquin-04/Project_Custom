@@ -9,6 +9,7 @@
                 <field name="syusro_nm"/>
                 <field name="syusro_rol"/>
                 <field name="syusro_fc_alta"/>
+                <field name="syusro_estado"/>
             </tree>
         </field>
     </record>
@@ -25,6 +26,8 @@
                         <field name="syusro_nm"/>
                         <field name="syusro_rol"/>
                         <field name="syusro_fc_alta"/>
+                        <field name="syusro_estado"/>
+                        <field name="employee_ids"/>
                     </group>
                 </sheet>
             </form>
