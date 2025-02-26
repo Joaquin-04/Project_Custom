@@ -8,8 +8,6 @@ class Ubic(models.Model):
         ('ubic_cd_unique', 'unique (ubic_cd)', 'El código de ubicación debe ser único.'),
     ]
     
-    # Definimos un campo "name" que se usará en los Many2one
-    name = fields.Char(string='Nombre', compute='_compute_name', store=True)
 
     # Campos del modelo
     ubic_cd = fields.Integer(
@@ -18,7 +16,7 @@ class Ubic(models.Model):
     )  # Código de ubicación (único y requerido)
     ubic_nm = fields.Char(string='UbicNm', required=False)  # Nombre de ubicación (único y requerido)
     ubic_nm_tt = fields.Char(string='UbicNmTt',
-                             #required=False
+                             required=False
                             )  # Nombre completo de ubicación
     ubic_usable = fields.Char(string='UbicUsable', default='S')  # Ubicación usable (por defecto True)
     ubic_cp = fields.Char(string='UbicCP', required=False)  # Código postal
@@ -36,7 +34,7 @@ class Ubic(models.Model):
 
         if name:
             # Agregar condiciones de búsqueda (ubic_cd o ubic_nm)
-            domain = ['|','|', ('ubic_cd', operator, name), ('ubic_nm', operator, name),('ubic_nm_tt', operator, name)] + domain
+            domain = ['|', ('ubic_cd', operator, name), ('ubic_nm', operator, name)] + domain
 
         # Ejecutar la búsqueda
         return self._search(domain, limit=limit, order=order)
@@ -50,16 +48,7 @@ class Ubic(models.Model):
                 record.display_name = record.ubic_nm
 
 
-    @api.depends('ubic_cd', 'ubic_nm')
-    def _compute_name(self):
-        for rec in self:
-            if rec.ubic_cd and rec.ubic_nm:
-                rec.name = f"[{rec.ubic_cd}] {rec.ubic_nm}"
-            elif rec.ubic_nm:
-                rec.name = rec.ubic_nm
-            else:
-                rec.name = ""
-
+    
 
 
 
