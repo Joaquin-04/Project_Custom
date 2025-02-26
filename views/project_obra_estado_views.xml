@@ -8,7 +8,7 @@
             <tree>
                 <field name="cod" string="ObraEstdCd"/>
                 <field name="name" string="ObraEstdDesc"/>
-                <field name="descripcion" string="ObraEstdColoRepr"/>
+                <field name="obra_estado_color" string="ObraEstdColoRepr"/>
                 <field name="obraCrc" string="ObraEstdCrc"/>
             </tree>
         </field>
@@ -24,7 +24,7 @@
                     <group>
                         <field name="cod" string="ObraEstdCd"/>
                         <field name="name" string="ObraEstdDesc"/>
-                        <field name="descripcion" string="ObraEstdColoRepr"/>
+                        <field name="obra_estado_color" string="ObraEstdColoRepr"/>
                         <field name="obraCrc" string="ObraEstdCrc"/>
                     </group>
                 </sheet>

@@ -50,8 +50,8 @@ class ProjectProject(models.Model):
 
     obra_nr = fields.Char(
         string="Número de Obra",
-        readonly=False,
-        copy=False,
+        #readonly=True,
+        #copy=False,
         store=True,
         size=5,
         tracking=True
@@ -82,7 +82,7 @@ class ProjectProject(models.Model):
 
     obra_estd_fc_ulti_modi = fields.Date(
         string="Última Modif. Estado de Obra",
-        readonly=True,
+        #readonly=True,
         help="Fecha en que se modificó por última vez el estado de la obra.",
         tracking=True
     )
@@ -109,20 +109,27 @@ class ProjectProject(models.Model):
         tracking=True
     )
 
+
+    obra_ubi_nombre= fields.Char(
+        #compute="_compute_obra_ubi_nombre",
+        Sring="Nombre",
+        tracking=True
+    )
+
     cod_postal_proyect = fields.Integer(
-        compute="_compute_cod_postal_proyect", 
+        #compute="_compute_cod_postal_proyect", 
         string="Cod Postal",
         tracking=True
     )
 
     ubi_area_proyect = fields.Integer(
-        compute="_compute_ubi_area_proyect", 
+        #compute="_compute_ubi_area_proyect", 
         string="Ubi Area",
         tracking=True
     )
 
     ubi_code = fields.Integer(
-        compute="_compute_ubi_code", 
+        #compute="_compute_ubi_code", 
         string="Código de ubicación",
         tracking=True
     )
@@ -146,7 +153,7 @@ class ProjectProject(models.Model):
     # 1. Fecha de Aprobación de Presupuesto (ej. ObraFcAlta)
     fecha_aprobacion_presupuesto = fields.Date(
         string="Fecha Aprob. Presupuesto",
-        compute="_compute_fecha_aprobacion_presupuesto",
+        #compute="_compute_fecha_aprobacion_presupuesto",
         store=True,
         help="Fecha de aprobación de presupuesto (solo fecha, sin hora)",
         tracking=True
@@ -261,7 +268,7 @@ class ProjectProject(models.Model):
     # 10. Empresa Origen (ObraEmprCd) - CRISTALIZANDO=4503, NOA=12873, GALVANIZADOS=13225
     empresa_origen_cd = fields.Integer(
         string="Empresa Origen Código",
-        compute="_compute_empresa_origen_cd",
+        #compute="_compute_empresa_origen_cd",
         store=True,
         help="SI LA OBRA ES DE CRISTALIZANDO=1 NOA=2 GALVANIZADOS=3",
         tracking=True
@@ -269,11 +276,20 @@ class ProjectProject(models.Model):
 
     obra_ref_fisc_cd = fields.Integer(
         string="Empresa Origen Código",
-        compute="_compute_obra_ref_fisc_cd",
+        #compute="_compute_obra_ref_fisc_cd",
         store=True,
         help="SI LA OBRA ES DE CRISTALIZANDO=4503 NOA=12873 GALVANIZADOS=13225",
         tracking=True
     )
+
+    obra_ref_cd = fields.Integer(
+        string="Empresa Origen Código",
+        #compute="_compute_obra_ref_cd",
+        store=True,
+        help="SI LA OBRA ES DE CRISTALIZANDO=4503 NOA=12873 GALVANIZADOS=13225",
+        tracking=True
+    )
+
    
     # 11. Campo Adicional de Observaciones si se requiere
     #     (Si hubiera otra columna de Observaciones extra, se define aquí)
@@ -293,9 +309,9 @@ class ProjectProject(models.Model):
     
     pais_cd = fields.Char(
         string="Código de País",
-        related="provincia_id.pais_cd",
+        #related="provincia_id.pais_cd",
+        #readonly=True,
         store=True,
-        readonly=True,
         help="Código de país obtenido de la provincia.",
         tracking=True
     )
@@ -306,25 +322,30 @@ class ProjectProject(models.Model):
         tracking=True
     )
     
-    obra_cmpl = fields.Integer(
+    obra_cmpl = fields.Char(
         string="YA casi no se usa",
-        tracking=True
+        tracking=True,
+        default="0"
+    )
+    
+    obra_ind_cmpl = fields.Char(
+        string="YA casi no se usa",
+        tracking=True,
+        default="0"
+    )
+    
+    obra_obs = fields.Char(
+        string="YA casi no se usa",
+        tracking=True,
+        default="0"
+    )
+    
+    obra_crc = fields.Char(
+        string="YA casi no se usa",
+        tracking=True,
+        default="0"
     )
 
-    obra_ind_cmpl = fields.Integer(
-        string="YA casi no se usa",
-        tracking=True
-    )
-
-    obra_obs = fields.Integer(
-        string="YA casi no se usa",
-        tracking=True
-    )
-
-    obra_crc = fields.Integer(
-        string="YA casi no se usa",
-        tracking=True
-    )
 
 
     
@@ -360,6 +381,28 @@ class ProjectProject(models.Model):
                 
             else:
                 project.obra_ref_fisc_cd = False
+
+    
+    @api.depends('company_id')
+    def _compute_obra_ref_cd(self):
+        for project in self:
+            if project.company_id:
+                # Toma el id de la empresa por defecto
+                project.obra_ref_cd = project.company_id.id 
+                
+                # CRISTALIZANDO=4503, NOA=12873, GALVANIZADOS=13225
+                if project.company_id.id == 3:
+                    # Cristalizando 
+                    project.obra_ref_cd = 4503
+                elif project.company_id.id == 2:
+                    # Noa Aberturas
+                    project.obra_ref_cd = 12873
+                elif project.company_id.id == 4:
+                    # Galvanizados del Norte
+                    project.obra_ref_cd = 13225
+                
+            else:
+                project.obra_ref_cd = False
         
                 
 
@@ -413,6 +456,13 @@ class ProjectProject(models.Model):
     
 
     @api.depends('obratipo_ubi')
+    def _compute_obra_ubi_nombre(self):
+        for record in self:
+            record.obra_ubi_nombre = record.obratipo_ubi.ubic_nm if record.obratipo_ubi else ''
+
+    
+
+    @api.depends('obratipo_ubi')
     def _compute_ubi_area_proyect(self):
         for record in self:
             record.ubi_area_proyect = record.obratipo_ubi.ubic_area_cd if record.obratipo_ubi else ''
@@ -436,10 +486,25 @@ class ProjectProject(models.Model):
     
     
 
-    
+    """
     _sql_constraints = [
         ('obra_nr_unique', 'UNIQUE(obra_nr)', '¡El número de obra debe ser único!'),
     ]
+
+
+    @api.constrains('obra_nr')
+    def _check_obra_nr_unique(self):
+        for project in self:
+            if project.obra_nr:
+                existing = self.search([
+                    ('obra_nr', '=', project.obra_nr),
+                    ('id', '!=', project.id)
+                ], limit=1)
+                if existing:
+                    raise ValidationError(f"¡El número de obra {project.obra_nr} ya existe!")
+
+                    
+    """
 
     @api.constrains('cod_postal_proyect')
     def _check_cod_postal_proyect(self):
@@ -465,16 +530,7 @@ class ProjectProject(models.Model):
             if record.extra_observaciones and len(record.extra_observaciones) > 199:  # Asumiendo misma lógica
                 raise ValidationError(_("Observaciones extra no puede exceder 199 caracteres."))
 
-    @api.constrains('obra_nr')
-    def _check_obra_nr_unique(self):
-        for project in self:
-            if project.obra_nr:
-                existing = self.search([
-                    ('obra_nr', '=', project.obra_nr),
-                    ('id', '!=', project.id)
-                ], limit=1)
-                if existing:
-                    raise ValidationError(f"¡El número de obra {project.obra_nr} ya existe!")
+    
 
 
     @api.constrains('name')

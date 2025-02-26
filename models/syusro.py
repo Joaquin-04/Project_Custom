@@ -68,7 +68,8 @@ class ProjectSyusro(models.Model):
         
         if name:
             # Agregar condiciones de búsqueda (obra_nr o name)
-            domain = ['&', '|', ('syusro_cd', operator, name), ('syusro_nm', operator, name), ('syusro_estado', '=', 'HABI')] + domain
+            #domain = ['&', '|', ('syusro_cd', operator, name), ('syusro_nm', operator, name), ('syusro_estado', '=', 'HABI')] + domain
+            domain = ['|', ('syusro_cd', operator, name), ('syusro_nm', operator, name)] + domain
             
         #_logger.warning(f"*****************************  _name_search ****************************")
         #_logger.warning(f"name: {syusro_nm} \ndomain {domain} \noperator: {operator} \nlimit: {limit} \norder: {order} \nname_get_uid: {name_get_uid}")

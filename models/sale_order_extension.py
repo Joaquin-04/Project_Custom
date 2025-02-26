@@ -12,7 +12,6 @@ class SaleOrder(models.Model):
         string="Proyecto",
     )
 
-    
 
     
     def write(self, vals):
@@ -21,11 +20,29 @@ class SaleOrder(models.Model):
         
         if 'project_id' in vals:
             if vals['project_id']:
+                # Se ha asignado un proyecto, obtenemos su información
+                project = self.env['project.project'].browse(vals['project_id'])
+
+                # Actualiza la cuenta analítica en las líneas de venta
+                if self.project_id.analytic_account_id:
+                    analytic_account_id = project.analytic_account_id.id
+                    distribution = {str(analytic_account_id): 100.0}
+                    _logger.warning(f"analytic_account_id: {analytic_account_id} \n distribution: {distribution}")
+                    
+                    # Versión compatible con Odoo 16+
+                    for line in self.order_line:
+                        if line.display_type not in ('line_section', 'line_note'):
+                            line.update({
+                                'analytic_distribution': distribution,
+                                # Si necesitas mantener compatibilidad con campos antiguos
+                                #'analytic_account_id': analytic_account.id
+                            })
+
+                
                 for reservation in self.material_reservation_ids:
                     reservation.stage_id = False  # Vacía la etapa cuando cambia el número de proyecto
                 
-                # Se ha asignado un proyecto, obtenemos su información
-                project = self.env['project.project'].browse(vals['project_id'])
+                
                 if project:
                     new_vals = {}
                     if project.obra_nr:
@@ -52,28 +69,7 @@ class SaleOrder(models.Model):
 
 
 
-    @api.onchange('project_id')
-    def _onchange_project_id(self):
-        _logger.warning("_onchange_project_id")
-        if self.project_id:
-            # Actualiza la cuenta analítica en las líneas de venta
-            analytic_account = self.project_id.analytic_account_id
-            _logger.warning(f"analytic_account: {analytic_account}")
-            for line in self.order_line:
-                line.analytic_distribution = analytic_account
-
-            # Actualiza los campos de Odoo Studio
-            if self.project_id.obra_nr:
-                _logger.warning(f" obra_nr {self.project_id.obra_nr}")
-                self.x_studio_nv_numero_de_obra_relacionada = self.project_id.obra_nr
-            if self.project_id.obra_padre_id:
-                self.x_studio_nv_numero_de_obra_padre = self.project_id.obra_padre_id.obra_nr
-            else:
-                self.x_studio_nv_numero_de_obra_padre = False
-        else:
-            # Si se limpia el proyecto, se limpian también los campos
-            self.x_studio_nv_numero_de_obra_relacionada = False
-            self.x_studio_nv_numero_de_obra_padre = False
+    
 
 
     @api.constrains('project_id', 'company_id')

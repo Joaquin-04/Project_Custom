@@ -12,8 +12,8 @@ class ProjectObraEstado(models.Model):
 
     cod = fields.Integer(string='cod', required=True)
     name = fields.Char(string='obraestado', required=True)
-    descripcion = fields.Char(string='colorRepr', required=False)
-    obraCrc = fields.Integer(string='colorRepr', required=False)
+    obra_estado_color = fields.Char(string='Estado Color', required=False)
+    obraCrc = fields.Integer(string='Estado Crc', required=False)
 
 
 
@@ -45,3 +45,5 @@ class ProjectObraEstado(models.Model):
                 record.display_name = f"[{record.cod}] {record.name}"
             else:
                 record.display_name = record.name
+
+
