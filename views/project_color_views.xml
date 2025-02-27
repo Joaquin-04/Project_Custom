@@ -29,6 +29,19 @@
             </form>
         </field>
     </record>
+    
+    <!-- Vista de Búsqueda -->
+    <record id="view_project_color_search" model="ir.ui.view">
+        <field name="name">project.color.search</field>
+        <field name="model">project.color</field>
+        <field name="arch" type="xml">
+            <search string="Buscar por Opción">
+                <field name="cod" string="Código"/>
+                <field name="name" string="Nombre"/>
+                <field name="descripcion" string="Descripción"/>
+            </search>
+        </field>
+    </record>
 
     <!-- Acción para abrir la vista de lista y formulario -->
     <record id="action_project_color" model="ir.actions.act_window">

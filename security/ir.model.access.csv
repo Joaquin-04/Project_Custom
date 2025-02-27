@@ -9,3 +9,4 @@ access_project_lnarti_manager,access_project_lnarti_manager,model_project_lnarti
 access_project_obratipo_manager,access_project_obratipo_manager,model_project_obratipo,project.group_project_manager,1,1,1,1
 access_project_ubic_manager,access_Ubi_manager,model_project_ubic,project.group_project_manager,1,1,1,1
 access_project_syusro_manager,project.syusro manager,model_project_syusro,project.group_project_manager,1,1,1,1
+access_project_cartel_obra_manager,project.cartel.obra manager,model_project_cartel_obra,project.group_project_manager,1,1,1,1

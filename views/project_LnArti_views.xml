@@ -30,6 +30,19 @@
         </field>
     </record>
 
+    <!-- Vista de Búsqueda -->
+    <record id="view_project_lnarti_search" model="ir.ui.view">
+        <field name="name">project.lnarti.search</field>
+        <field name="model">project.lnarti</field>
+        <field name="arch" type="xml">
+            <search string="Buscar por Opción">
+                <field name="cod" string="LnArtiCd"/>
+                <field name="name" string="LnArtiNm"/>
+                <field name="descripcion" string="LnArtiCrc"/>
+            </search>
+        </field>
+    </record>
+
     <!-- Acción para abrir la vista de lista y formulario -->
     <record id="action_project_lnarti" model="ir.actions.act_window">
         <field name="name">LnArti</field>

@@ -34,6 +34,22 @@
         </field>
     </record>
 
+    <!-- Vista de Búsqueda -->
+    <record id="view_project_syusro_search" model="ir.ui.view">
+        <field name="name">project.syusro.search</field>
+        <field name="model">project.syusro</field>
+        <field name="arch" type="xml">
+            <search string="Buscar por Opción">
+                <field name="syusro_cd"/>
+                <field name="syusro_nm"/>
+                <field name="syusro_rol"/>
+                <field name="syusro_fc_alta"/>
+                <field name="syusro_estado"/>
+                <field name="employee_ids"/>
+            </search>
+        </field>
+    </record>
+
     <record id="action_project_syusro" model="ir.actions.act_window">
         <field name="name">Usuarios SYUSRO</field>
         <field name="res_model">project.syusro</field>

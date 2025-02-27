@@ -31,6 +31,20 @@
             </form>
         </field>
     </record>
+    
+    <!-- Vista de Búsqueda -->
+    <record id="view_project_obraestado_search" model="ir.ui.view">
+        <field name="name">project.obraestado.search</field>
+        <field name="model">project.obraestado</field>
+        <field name="arch" type="xml">
+            <search string="Buscar por Opción">
+                <field name="cod" string="ObraEstdCd"/>
+                <field name="name" string="ObraEstdDesc"/>
+                <field name="obra_estado_color" string="ObraEstdColoRepr"/>
+                <field name="obraCrc" string="ObraEstdCrc"/>
+            </search>
+        </field>
+    </record>
 
     <!-- Acción para abrir la vista de lista y formulario -->
     <record id="action_project_obraestado" model="ir.actions.act_window">

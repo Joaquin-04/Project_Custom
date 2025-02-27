@@ -1,0 +1,50 @@
+<odoo>
+    <!-- Vista de Lista -->
+    <record id="view_project_cartel_obra_tree" model="ir.ui.view">
+        <field name="name">project.cartel.obra.tree</field>
+        <field name="model">project.cartel.obra</field>
+        <field name="arch" type="xml">
+            <tree string="Opciones para Cartel de Obra">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de Formulario -->
+    <record id="view_project_cartel_obra_form" model="ir.ui.view">
+        <field name="name">project.cartel.obra.form</field>
+        <field name="model">project.cartel.obra</field>
+        <field name="arch" type="xml">
+            <form string="Opción para Cartel de Obra">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de Búsqueda -->
+    <record id="view_project_cartel_obra_search" model="ir.ui.view">
+        <field name="name">project.cartel.obra.search</field>
+        <field name="model">project.cartel.obra</field>
+        <field name="arch" type="xml">
+            <search string="Buscar por Opción">
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción para abrir las vistas -->
+    <record id="action_project_cartel_obra" model="ir.actions.act_window">
+        <field name="name">Opciones para Cartel de Obra</field>
+        <field name="res_model">project.cartel.obra</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_project_cartel_obra_search"/>
+    </record>
+
+    <!-- Menú de Configuración: se asume que ya existe el menú "project.menu_project_config" -->
+    <menuitem id="menu_project_config" name="Configuración" parent="project.menu_project_config"/>
+    <menuitem id="menu_project_cartel_obra" name="Cartel de Obra" parent="menu_project_config" action="action_project_cartel_obra"/>
+</odoo>

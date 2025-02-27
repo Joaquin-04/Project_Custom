@@ -40,6 +40,24 @@
         </field>
     </record>
 
+    <!-- Vista de Búsqueda -->
+    <record id="view_project_ubic_search" model="ir.ui.view">
+        <field name="name">project.ubic.search</field>
+        <field name="model">project.ubic</field>
+        <field name="arch" type="xml">
+            <search string="Buscar por Opción">
+                <field name="ubic_cd" string="UbicCd"/>
+                <field name="ubic_nm" string="UbicNm"/>
+                <field name="ubic_nm_tt" string="UbicNmTt"/>
+                <field name="ubic_usable" string="UbicUsable"/>
+                <field name="ubic_cp" string="UbicCP"/>
+                <field name="ubic_area_cd" string="UbicAreaCd"/>
+                <field name="ubic_crc" string="UbicCrc"/>
+                <field name="ubic_dist_a_fabr" string="UbicDistAFabr"/>
+            </search>
+        </field>
+    </record>
+
     <!-- Acción para abrir la vista de lista y formulario -->
     <record id="action_ubic" model="ir.actions.act_window">
         <field name="name">Ubicaciones</field>

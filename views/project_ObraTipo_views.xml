@@ -46,6 +46,20 @@
         </field>
     </record>
 
+    
+    <!-- Vista de Búsqueda -->
+    <record id="view_project_obratipo_search" model="ir.ui.view">
+        <field name="name">project.obratipo.search</field>
+        <field name="model">project.obratipo</field>
+        <field name="arch" type="xml">
+            <search string="Buscar por Opción">
+                <field name="cod"/>
+                <field name="name"/>
+                <field name="descripcion"/>
+            </search>
+        </field>
+    </record>
+
     <!-- Acción del menú -->
     <record id="action_project_obratipo" model="ir.actions.act_window">
         <field name="name">Obras Tipo</field>

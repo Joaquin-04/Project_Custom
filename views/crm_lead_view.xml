@@ -5,15 +5,56 @@
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="priority" eval="161"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='user_id']" position="before">
-                <field 
-                        name="project_id" 
-                        string="Proyecto" 
-                        domain="[('company_id', '=', company_id)]" 
-                        options="{'no_create': True, 'no_create_edit': True}"/>
+
+            <xpath expr="//page[last()]" position="after"> <!-- Añade después de la última pestaña -->
+                <page string="Información de Obra">
+                    <group string="Datos Principales" col="2">
+                        <field name="project_id" 
+                               domain="[('company_id', '=', company_id)]"
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="vendedor_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="cotizador_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="jefe_obra_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="project_ubi_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="cod_postal_proyect" readonly="1"/>
+                        
+                        <field name="ubi_area_proyect" readonly="1"/>
+                        
+                        <field name="ubi_code" readonly="1"/>
+                    </group>
+                    
+                    <group string="Clasificaciones" col="2">
+                        <field name="provincia_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="pais_cd" readonly="1"/>
+                        
+                        <field name="lnart_proyect_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="obratipo_proyect_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="color_proyect_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="estado_obra_proyect_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        
+                        <field name="cartel_obra_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                    </group>
+                </page>
             </xpath>
-
-
         </field>
     </record>
 </odoo>

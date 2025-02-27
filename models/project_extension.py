@@ -50,8 +50,8 @@ class ProjectProject(models.Model):
 
     obra_nr = fields.Char(
         string="Número de Obra",
-        readonly=True,
-        copy=False,
+        #readonly=True,
+        #copy=False,
         store=True,
         size=5,
         tracking=True
@@ -82,7 +82,7 @@ class ProjectProject(models.Model):
 
     obra_estd_fc_ulti_modi = fields.Date(
         string="Última Modif. Estado de Obra",
-        readonly=True,
+        #readonly=True,
         help="Fecha en que se modificó por última vez el estado de la obra.",
         tracking=True
     )
@@ -111,25 +111,25 @@ class ProjectProject(models.Model):
 
 
     obra_ubi_nombre= fields.Char(
-        compute="_compute_obra_ubi_nombre",
+        #compute="_compute_obra_ubi_nombre",
         Sring="Nombre",
         tracking=True
     )
 
     cod_postal_proyect = fields.Integer(
-        compute="_compute_cod_postal_proyect", 
+        #compute="_compute_cod_postal_proyect", 
         string="Cod Postal",
         tracking=True
     )
 
     ubi_area_proyect = fields.Integer(
-        compute="_compute_ubi_area_proyect", 
+        #compute="_compute_ubi_area_proyect", 
         string="Ubi Area",
         tracking=True
     )
 
     ubi_code = fields.Integer(
-        compute="_compute_ubi_code", 
+        #compute="_compute_ubi_code", 
         string="Código de ubicación",
         tracking=True
     )
@@ -153,7 +153,7 @@ class ProjectProject(models.Model):
     # 1. Fecha de Aprobación de Presupuesto (ej. ObraFcAlta)
     fecha_aprobacion_presupuesto = fields.Date(
         string="Fecha Aprob. Presupuesto",
-        compute="_compute_fecha_aprobacion_presupuesto",
+        #compute="_compute_fecha_aprobacion_presupuesto",
         store=True,
         help="Fecha de aprobación de presupuesto (solo fecha, sin hora)",
         tracking=True
@@ -240,17 +240,8 @@ class ProjectProject(models.Model):
     )
 
     # 8. Cartel Obra (ObraCartEstd) CRM (x_studio_nv_cartel)
-    cartel_obra = fields.Selection(
-        [
-            ('1- SOLICITAR AUTORIZACION', '1- SOLICITAR AUTORIZACION'),
-            ('2- COLGAR CARTEL', '2- COLGAR CARTEL'),
-            ('3- CARTEL COLGADO', '3- CARTEL COLGADO'),
-            ('4- DESCOLGAR CARTEL', '4- DESCOLGAR CARTEL'),
-            ('8- NO SE PUEDE COLGAR CARTEL', '8- NO SE PUEDE COLGAR CARTEL'),
-            ('7- NO DEJAN COLGAR', '7- NO DEJAN COLGAR'),
-            ('8- CARTEL PERDIDO', '8- CARTEL PERDIDO'),
-            ('9- FIN', '9- FIN'),
-        ],
+    cartel_obra_id = fields.Many2one(
+        'project.cartel.obra',
         string="Cartel de Obra",
         tracking=True
     )
@@ -268,7 +259,7 @@ class ProjectProject(models.Model):
     # 10. Empresa Origen (ObraEmprCd) - CRISTALIZANDO=4503, NOA=12873, GALVANIZADOS=13225
     empresa_origen_cd = fields.Integer(
         string="Empresa Origen Código",
-        compute="_compute_empresa_origen_cd",
+        #compute="_compute_empresa_origen_cd",
         store=True,
         help="SI LA OBRA ES DE CRISTALIZANDO=1 NOA=2 GALVANIZADOS=3",
         tracking=True
@@ -276,7 +267,7 @@ class ProjectProject(models.Model):
 
     obra_ref_fisc_cd = fields.Integer(
         string="Empresa Origen Código",
-        compute="_compute_obra_ref_fisc_cd",
+        #compute="_compute_obra_ref_fisc_cd",
         store=True,
         help="SI LA OBRA ES DE CRISTALIZANDO=4503 NOA=12873 GALVANIZADOS=13225",
         tracking=True
@@ -284,7 +275,7 @@ class ProjectProject(models.Model):
 
     obra_ref_cd = fields.Integer(
         string="Empresa Origen Código",
-        compute="_compute_obra_ref_cd",
+        #compute="_compute_obra_ref_cd",
         store=True,
         help="SI LA OBRA ES DE CRISTALIZANDO=4503 NOA=12873 GALVANIZADOS=13225",
         tracking=True
@@ -309,8 +300,8 @@ class ProjectProject(models.Model):
     
     pais_cd = fields.Char(
         string="Código de País",
-        related="provincia_id.pais_cd",
-        readonly=True,
+        #related="provincia_id.pais_cd",
+        #readonly=True,
         store=True,
         help="Código de país obtenido de la provincia.",
         tracking=True
@@ -486,6 +477,7 @@ class ProjectProject(models.Model):
     
     
 
+    """
     _sql_constraints = [
         ('obra_nr_unique', 'UNIQUE(obra_nr)', '¡El número de obra debe ser único!'),
     ]
@@ -502,7 +494,8 @@ class ProjectProject(models.Model):
                 if existing:
                     raise ValidationError(f"¡El número de obra {project.obra_nr} ya existe!")
 
-
+                    
+    """
 
     @api.constrains('cod_postal_proyect')
     def _check_cod_postal_proyect(self):
@@ -577,7 +570,7 @@ class ProjectProject(models.Model):
         'obra_jefe_cd',
         'obra_tec_cd',
         'obra_capa_cd',
-        'cartel_obra',
+        'cartel_obra_id ',
         'tiene_colocacion',
         'empresa_origen_cd',
         'obra_ref_fisc_cd',

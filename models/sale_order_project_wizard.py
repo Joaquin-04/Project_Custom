@@ -75,7 +75,7 @@ class SaleOrderProjectWizard(models.TransientModel):
         'lnart_proyect': 'lnart_proyect_id',
         'fecha_pactada_entrega': 'x_studio_nv_fecha_probable_de_entrega_de_obra',
         'codigo_plus': 'x_studio_nv_codigo_plus',
-        'cartel_obra': 'x_studio_nv_cartel',
+        'cartel_obra_id': 'cartel_obra_id',
         'provincia_id': 'provincia_id',
         'pais_cd': 'pais_cd',
         'kg_perfileria': 'x_studio_nv_kg_perfilera',
@@ -141,8 +141,7 @@ class SaleOrderProjectWizard(models.TransientModel):
                     # Para campos computados que son stored=True
                     if opportunity.ubi_code:
                         project.ubi_code = opportunity.ubi_code
-        
-        
+           
         else:
             project = self.project_id
 
@@ -150,8 +149,11 @@ class SaleOrderProjectWizard(models.TransientModel):
         self.sale_order_id.project_id = project
         #self.sale_order_id._onchange_project_id()
 
+        # Forzar actualización de líneas
+        self.sale_order_id._update_analytic_distribution()
+
         #Confirmar la orden de venta
-        self.sale_order_id.action_confirm()
+        #self.sale_order_id.action_confirm()
 
         return {'type': 'ir.actions.act_window_close'}
 

@@ -9,7 +9,7 @@ class CrmLead(models.Model):
 
     # Campo 'name' sobreescrito con límite
     name = fields.Char(
-        string="Nombre de la Obra",
+        string="",
         size=99,
         help="Nombre de la obra. Máximo 98 caracteres.",
         tracking=True
@@ -109,6 +109,12 @@ class CrmLead(models.Model):
         'project.obraestado',
         string="Estado obra",
         #ObraEstado
+        tracking=True
+    )
+
+    cartel_obra_id = fields.Many2one(
+        'project.cartel.obra',
+        string="Cartel de Obra",
         tracking=True
     )
 

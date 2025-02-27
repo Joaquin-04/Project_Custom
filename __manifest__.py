@@ -25,6 +25,7 @@
         'views/project_ObraTipo_views.xml',
         'views/project_Ubi_views.xml',
         'views/syusro_views.xml',
+        'views/project_cartel_obra_views.xml'
     ],
     'installable': True,
     'application': True,

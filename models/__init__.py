@@ -11,3 +11,4 @@ from . import project_LnArti
 from . import project_ObraTipo
 from . import project_Ubi
 from . import syusro
+from . import project_cartel_obra

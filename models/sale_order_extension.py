@@ -12,62 +12,82 @@ class SaleOrder(models.Model):
         string="Proyecto",
     )
 
+    @api.model
+    def default_get(self, fields_list):
+        """Obtiene valores por defecto, como el nombre del lead si proviene de uno"""
+        res = super(SaleOrder, self).default_get(fields_list)
+        
+        
+        project_id = self.opportunity_id.project_id
+        
+        if project_id:
+            res['project_id']=project_id
+
+        return res
+
 
     
     def write(self, vals):
         _logger.warning("Write!!!")
         _logger.warning(f"valores: {vals}")
         
+        # Ejecutar primero la escritura normal para tener los últimos valores
+        result = super(SaleOrder, self).write(vals)
+        
         if 'project_id' in vals:
+            project = None
             if vals['project_id']:
                 # Se ha asignado un proyecto, obtenemos su información
                 project = self.env['project.project'].browse(vals['project_id'])
-
-                # Actualiza la cuenta analítica en las líneas de venta
-                if self.project_id.analytic_account_id:
-                    analytic_account_id = project.analytic_account_id.id
-                    distribution = {str(analytic_account_id): 100.0}
-                    _logger.warning(f"analytic_account_id: {analytic_account_id} \n distribution: {distribution}")
-                    
-                    # Versión compatible con Odoo 16+
-                    for line in self.order_line:
-                        if line.display_type not in ('line_section', 'line_note'):
-                            line.update({
-                                'analytic_distribution': distribution,
-                                # Si necesitas mantener compatibilidad con campos antiguos
-                                #'analytic_account_id': analytic_account.id
-                            })
-
                 
+                # Actualizar reservas de material
                 for reservation in self.material_reservation_ids:
-                    reservation.stage_id = False  # Vacía la etapa cuando cambia el número de proyecto
+                    reservation.stage_id = False
                 
+                # Actualizar campos personalizados
+                new_vals = {}
+                if project.obra_nr:
+                    new_vals['x_studio_nv_numero_de_obra_relacionada'] = project.obra_nr
+                else:
+                    new_vals['x_studio_nv_numero_de_obra_relacionada'] = False
                 
-                if project:
-                    new_vals = {}
-                    if project.obra_nr:
-                        new_vals['x_studio_nv_numero_de_obra_relacionada'] = project.obra_nr
-                    else:
-                        new_vals['x_studio_nv_numero_de_obra_relacionada'] = False
-                    if project.obra_padre_id:
-                        new_vals['x_studio_nv_numero_de_obra_padre'] = project.obra_padre_id.obra_nr
-                    else:
-                        new_vals['x_studio_nv_numero_de_obra_padre'] = False
-                    vals.update(new_vals)
+                if project.obra_padre_id:
+                    new_vals['x_studio_nv_numero_de_obra_padre'] = project.obra_padre_id.obra_nr
+                else:
+                    new_vals['x_studio_nv_numero_de_obra_padre'] = False
+                
+                self.write(new_vals)  # Actualizar campos sin entrar en recursión
+                
+                # Actualizar distribución analítica después de confirmar cambios
+                self._update_analytic_distribution()
             else:
-                # Se está borrando el proyecto, establecemos los campos en 0 o False
-                vals.update({
+                # Limpiar distribución analítica si se quita el proyecto
+                self._update_analytic_distribution(reset=True)
+                # Limpiar campos si se quita el proyecto
+                self.write({
                     'x_studio_nv_numero_de_obra_relacionada': 0,
                     'x_studio_nv_numero_de_obra_padre': 0,
                 })
-        return super(SaleOrder, self).write(vals)
+        
+        return result
 
 
-    """
-    
-    """
+    def _update_analytic_distribution(self,reset=False):
+        """Actualiza la distribución analítica en todas las líneas"""
+        if not reset:
+            if self.project_id and self.project_id.analytic_account_id:
+                analytic_account_id = self.project_id.analytic_account_id.id
+                distribution = {str(analytic_account_id): 100.0}
+                
+                for line in self.order_line:
+                    if line.display_type not in ('line_section', 'line_note'):
+                        line.analytic_distribution = distribution
 
-
+        else:
+            for line in self.order_line:
+                    if line.display_type not in ('line_section', 'line_note'):
+                        line.analytic_distribution = False
+            
 
     
 
@@ -84,17 +104,37 @@ class SaleOrder(models.Model):
     def action_confirm(self):
         """ Antes de confirmar la venta, abre un wizard para seleccionar o crear un proyecto """
         if not self.project_id:
-            return {
-                'type': 'ir.actions.act_window',
-                'res_model': 'sale.order.project.wizard',
-                'view_mode': 'form',
-                'target': 'new',
-                'context': {
-                    'default_sale_order_id': self.id,
-                    'default_sale_company_id':self.company_id
-                },
-            }
+            raise ValidationError(_(f"Por favor seleccione o cree un proyecto antes de confirmar el presupuesto."))
+    
         return super().action_confirm()
+
+    
+    def action_open_project_wizard(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order.project.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_sale_order_id': self.id,
+            }
+        }
+
+
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    @api.model
+    def create(self, vals):
+        """Hereda distribución analítica al crear línea"""
+        if 'order_id' in vals:
+            order = self.env['sale.order'].browse(vals['order_id'])
+            if order.project_id and order.project_id.analytic_account_id:
+                analytic_account_id = order.project_id.analytic_account_id.id
+                vals.setdefault('analytic_distribution', {str(analytic_account_id): 100.0})
+        return super().create(vals)
 
 
 
