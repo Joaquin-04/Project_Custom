@@ -308,7 +308,7 @@ class ProjectProject(models.Model):
     )
 
     # 13 Kilogramos de Perfileria CRM(x_studio_nv_kg_perfilera)
-    kg_perfileria = fields.Integer(
+    kg_perfileria = fields.Float(
         string="Kg de Perfileria",
         tracking=True
     )

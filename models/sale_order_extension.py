@@ -103,8 +103,8 @@ class SaleOrder(models.Model):
     
     def action_confirm(self):
         """ Antes de confirmar la venta, abre un wizard para seleccionar o crear un proyecto """
-        if not self.project_id:
-            raise ValidationError(_(f"Por favor seleccione o cree un proyecto antes de confirmar el presupuesto."))
+        #if not self.project_id:
+        #    raise ValidationError(_(f"Por favor seleccione o cree un proyecto antes de confirmar el presupuesto."))
     
         return super().action_confirm()
 

@@ -10,8 +10,12 @@ class ProjectObraTipo(models.Model):
         ('cod_unique', 'unique (cod)', 'El código debe ser único.')
     ]
 
-    cod = fields.Char(string='ObraTpCd', required=True)
-    name = fields.Char(string='ObraTpDesc', required=True)
+    cod = fields.Char(string='ObraTpCd', 
+                      #required=True
+                     )
+    name = fields.Char(string='ObraTpDesc', 
+                       #required=True
+                      )
     descripcion = fields.Char(string='ObraTpCrc', required=False)
 
 
