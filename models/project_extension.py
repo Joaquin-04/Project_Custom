@@ -52,9 +52,21 @@ class ProjectProject(models.Model):
         string="Número de Obra",
         #readonly=True,
         #copy=False,
+        readonly=True,
+        copy=False,
         store=True,
         size=5,
         tracking=True
+    )
+
+    # Nuevo campo que sirve para la importación del excel
+    obra_padre_nr = fields.Char(
+        string = "Número de Obra Padre",
+        readonly=True,
+        copy=False,
+        store=True,
+        size=5,
+        compute = "_compute_obra_padre_nr"
     )
     
     obra_padre_id = fields.Many2one(
@@ -63,7 +75,8 @@ class ProjectProject(models.Model):
         domain="[('company_id', '=', company_id)]",  # Filtra por compañías permitidas
         no_create=True,
         size=29,
-        tracking=True
+        tracking=True,
+        
     )
 
     color_proyect = fields.Many2one(
@@ -83,6 +96,7 @@ class ProjectProject(models.Model):
     obra_estd_fc_ulti_modi = fields.Date(
         string="Última Modif. Estado de Obra",
         #readonly=True,
+        readonly=True,
         help="Fecha en que se modificó por última vez el estado de la obra.",
         tracking=True
     )
@@ -111,19 +125,22 @@ class ProjectProject(models.Model):
 
 
     obra_ubi_nombre= fields.Char(
-        #compute="_compute_obra_ubi_nombre",
+        #compute="_compute_obra_ubi_nombre,"
+        compute="_compute_obra_ubi_nombre,
         Sring="Nombre",
         tracking=True
     )
 
     cod_postal_proyect = fields.Integer(
-        #compute="_compute_cod_postal_proyect", 
+        #compute="_compute_cod_postal_proyect,"
+        compute="_compute_cod_postal_proyect, 
         string="Cod Postal",
         tracking=True
     )
 
     ubi_area_proyect = fields.Integer(
-        #compute="_compute_ubi_area_proyect", 
+        #compute="_compute_ubi_area_proyect,"
+        compute="_compute_ubi_area_proyect, 
         string="Ubi Area",
         tracking=True
     )
@@ -153,7 +170,8 @@ class ProjectProject(models.Model):
     # 1. Fecha de Aprobación de Presupuesto (ej. ObraFcAlta)
     fecha_aprobacion_presupuesto = fields.Date(
         string="Fecha Aprob. Presupuesto",
-        #compute="_compute_fecha_aprobacion_presupuesto",
+        #compute="_compute_fecha_aprobacion_presupuesto,"
+        compute="_compute_fecha_aprobacion_presupuesto,
         store=True,
         help="Fecha de aprobación de presupuesto (solo fecha, sin hora)",
         tracking=True
@@ -259,7 +277,8 @@ class ProjectProject(models.Model):
     # 10. Empresa Origen (ObraEmprCd) - CRISTALIZANDO=4503, NOA=12873, GALVANIZADOS=13225
     empresa_origen_cd = fields.Integer(
         string="Empresa Origen Código",
-        #compute="_compute_empresa_origen_cd",
+        #compute="_compute_empresa_origen_cd,"
+        compute="_compute_empresa_origen_cd,
         store=True,
         help="SI LA OBRA ES DE CRISTALIZANDO=1 NOA=2 GALVANIZADOS=3",
         tracking=True
@@ -267,7 +286,8 @@ class ProjectProject(models.Model):
 
     obra_ref_fisc_cd = fields.Integer(
         string="Empresa Origen Código",
-        #compute="_compute_obra_ref_fisc_cd",
+        #compute="_compute_obra_ref_fisc_cd,"
+        compute="_compute_obra_ref_fisc_cd,
         store=True,
         help="SI LA OBRA ES DE CRISTALIZANDO=4503 NOA=12873 GALVANIZADOS=13225",
         tracking=True
@@ -275,7 +295,8 @@ class ProjectProject(models.Model):
 
     obra_ref_cd = fields.Integer(
         string="Empresa Origen Código",
-        #compute="_compute_obra_ref_cd",
+        #compute="_compute_obra_ref_cd,"
+        compute="_compute_obra_ref_cd,
         store=True,
         help="SI LA OBRA ES DE CRISTALIZANDO=4503 NOA=12873 GALVANIZADOS=13225",
         tracking=True
@@ -302,6 +323,8 @@ class ProjectProject(models.Model):
         string="Código de País",
         #related="provincia_id.pais_cd",
         #readonly=True,
+        related="provincia_id.pais_cd",
+        readonly=True,
         store=True,
         help="Código de país obtenido de la provincia.",
         tracking=True
@@ -348,6 +371,16 @@ class ProjectProject(models.Model):
     # RESTRICCIONES Y COMPUTES
     # --------------------------------------------------------------------------
     
+    @api.depends('obra_padre_id')
+    def _compute_obra_padre_nr (self):
+        for project in self:
+            # El numero de la obra padre sera igual al numero de obra
+            project['obra_padre_nr'] = project.obra_nr
+
+            # Si el proyecto tiene obra padre entonces toma el numero de obra de la obra padre
+            if project.obra_padre_id:
+                project['obra_padre_nr'] = project.obra_padre_id.obra_nr
+
     
 
     
@@ -374,6 +407,7 @@ class ProjectProject(models.Model):
                 project.obra_ref_fisc_cd = False
 
     
+    
     @api.depends('company_id')
     def _compute_obra_ref_cd(self):
         for project in self:
@@ -396,8 +430,6 @@ class ProjectProject(models.Model):
                 project.obra_ref_cd = False
         
                 
-
-
 
 
     @api.depends('company_id')
@@ -477,7 +509,6 @@ class ProjectProject(models.Model):
     
     
 
-    """
     _sql_constraints = [
         ('obra_nr_unique', 'UNIQUE(obra_nr)', '¡El número de obra debe ser único!'),
     ]
@@ -493,9 +524,7 @@ class ProjectProject(models.Model):
                 ], limit=1)
                 if existing:
                     raise ValidationError(f"¡El número de obra {project.obra_nr} ya existe!")
-
                     
-    """
 
     @api.constrains('cod_postal_proyect')
     def _check_cod_postal_proyect(self):
@@ -583,10 +612,10 @@ class ProjectProject(models.Model):
         'obra_obs',
         'obra_crc'
     ]
+    """Hereda automáticamente los valores del proyecto padre al seleccionarlo."""
     
     @api.onchange('obra_padre_id')
     def _onchange_obra_padre_id(self):
-        """Hereda automáticamente los valores del proyecto padre al seleccionarlo."""
         if self.obra_padre_id:
             padre = self.obra_padre_id
             for field_name in self._fields:

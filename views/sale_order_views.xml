@@ -6,11 +6,13 @@
         <field name="priority" eval="161"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <!--
                 <button name="action_open_project_wizard"
                         string="Crear Proyecto"
                         type="object"
                         class="oe_highlight"
                         invisible= "project_id != False and state not in ['sale', 'done']"/>
+                -->
             </xpath>
             <xpath expr="//field[@name='x_studio_nv_numero_de_obra_relacionada']" position="after">
                     <field name="company_id" invisible="1"/>

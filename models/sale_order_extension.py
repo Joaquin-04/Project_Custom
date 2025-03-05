@@ -101,12 +101,36 @@ class SaleOrder(models.Model):
 
 
     
+    
+
     def action_confirm(self):
         """ Antes de confirmar la venta, abre un wizard para seleccionar o crear un proyecto """
-        #if not self.project_id:
-        #    raise ValidationError(_(f"Por favor seleccione o cree un proyecto antes de confirmar el presupuesto."))
-    
+
+        if self.studio_almacen.id == 10:
+            proyecto = self.env['project.project'].search([('name', '=', 'Gremio')], limit=1)
+            _logger.warning(f"Buscando el proyecto: {proyecto}")
+            if proyecto:
+                self.project_id = proyecto.id
+            else:
+                raise UserError("No se encontró un proyecto con el nombre 'Gremio'.")
+
+        if not self.project_id:
+            return {
+
+                'type': 'ir.actions.act_window',
+
+                'res_model': 'sale.order.project.wizard',
+
+                'view_mode': 'form',
+
+                'target': 'new',
+
+                'context': {'default_sale_order_id': self.id},
+
+            }
+
         return super().action_confirm()
+    
 
     
     def action_open_project_wizard(self):

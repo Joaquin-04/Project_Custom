@@ -153,7 +153,7 @@ class SaleOrderProjectWizard(models.TransientModel):
         self.sale_order_id._update_analytic_distribution()
 
         #Confirmar la orden de venta
-        #self.sale_order_id.action_confirm()
+        self.sale_order_id.action_confirm()
 
         return {'type': 'ir.actions.act_window_close'}
 

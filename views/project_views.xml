@@ -27,7 +27,7 @@
                         <field name="ubi_area_proyect"/>
                         <field name="ubi_code"/>
                         <field name="kg_perfileria"/>
-                        <field name="nombre_carga_obra"/>
+                        <field name="nombre_carga_obra" invisible="1"/>
                         <field name="direccion"/>
                     </group>
                     
