@@ -11,7 +11,7 @@
                     <!-- Si no se crea un nuevo proyecto, se muestra la selección de un proyecto existente -->
                     <field name="project_id" invisible="create_new == True" required="create_new == False" string="Proyecto"/>
                     
-                    <field name="create_new" string="Crear un Nuevo Proyecto?"/>
+                    <field name="create_new" string="Crear un Nuevo Proyecto?" invisible ="1"/>
             
                     <!-- Si se crea un nuevo proyecto, se muestran estos campos -->
                     <group invisible="create_new == False">

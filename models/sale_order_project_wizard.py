@@ -25,7 +25,7 @@ class SaleOrderProjectWizard(models.TransientModel):
     )
 
     
-    create_new = fields.Boolean(string="Crear Nuevo Proyecto?")
+    create_new = fields.Boolean(string="Crear Nuevo Proyecto?", default=True)
     
     new_project_name = fields.Char(string="Nombre del Nuevo Proyecto")
 
