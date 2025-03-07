@@ -1,4 +1,6 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
+from psycopg2 import IntegrityError
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -657,43 +659,88 @@ class ProjectProject(models.Model):
 
     
 
+    
+
     @api.model
     def create(self, vals):
         # Asignar la compañía si no se proporcionó
         if not vals.get('company_id'):
             vals['company_id'] = self.env.company.id
 
-        
-        # Generar número de obra secuencial
-        if not vals.get('obra_nr'):
-            next_value= self.env['ir.sequence'].next_by_code('custom.project.number')
-            #_logger.warning(f"next_value: {next_value}")
-
-            vals['obra_nr'] = next_value
-
-        # Generar obra_nr único incluso si la secuencia es modificada
-        if not vals.get('obra_nr'):
-            while True:
-                next_value = self.env['ir.sequence'].next_by_code('custom.project.number')
-                existing = self.search_count([('obra_nr', '=', next_value)])
-                if not existing:
-                    vals['obra_nr'] = next_value
-                    break
-        
         # Crear cuenta analítica automáticamente
         if not vals.get('analytic_account_id'):
             analytic_account = self.env['account.analytic.account'].create({
                 'name': vals.get('name'),
-                'company_id': self.company_id.id,
+                'company_id': vals['company_id'],
                 'plan_id': 1,
             })
             vals['analytic_account_id'] = analytic_account.id
 
-        record = super(ProjectProject, self).create(vals)
-        record._onchange_obra_padre_id()
-        
-        return record
+        try:
+            # Intentar crear el proyecto
+            record = super(ProjectProject, self).create(vals)
 
+            # Generar número de obra secuencial y asignarlo al proyecto
+            next_value = self.env['ir.sequence'].next_by_code('custom.project.number')
+            record.write({'obra_nr': next_value})
+
+            # Registrar el log de auditoría para creación exitosa
+            audit_vals = {
+                'project_id': record.id,
+                'sequence_number': next_value,
+                'user_id': self.env.uid,
+                'company_id': record.company_id.id,
+                'state': 'success',
+                'message': 'Proyecto creado y secuencia asignada exitosamente.'
+            }
+            self.env['project.sequence.log'].sudo().create(audit_vals)
+
+            return record
+
+        except ValidationError as ve:
+            # Registrar el log de auditoría para errores de validación
+            audit_vals = {
+                'project_id': False,
+                'sequence_number': None,
+                'user_id': self.env.uid,
+                'company_id': vals.get('company_id'),
+                'state': 'error',
+                'message': f'Error de validación al crear el proyecto: {str(ve)}',
+                'data': vals
+            }
+            self.env['project.sequence.log'].sudo().create(audit_vals)
+            _logger.error(f"Error de validación al crear el proyecto: {str(ve)}")
+            raise ve
+
+        except IntegrityError as ie:
+            # Registrar el log de auditoría para errores de integridad
+            audit_vals = {
+                'project_id': False,
+                'sequence_number': None,
+                'user_id': self.env.uid,
+                'company_id': vals.get('company_id'),
+                'state': 'error',
+                'message': f'Error de integridad al crear el proyecto: {str(ie)}',
+                'data': vals
+            }
+            self.env['project.sequence.log'].sudo().create(audit_vals)
+            _logger.error(f"Error de integridad al crear el proyecto: {str(ie)}")
+            raise ValidationError(_('Ocurrió un error de integridad al crear el proyecto. Por favor, inténtelo de nuevo.'))
+
+        except Exception as e:
+            # Registrar el log de auditoría para errores generales
+            audit_vals = {
+                'project_id': False,
+                'sequence_number': None,
+                'user_id': self.env.uid,
+                'company_id': vals.get('company_id'),
+                'state': 'error',
+                'message': f'Error general al crear el proyecto: {str(e)}',
+                'data': vals
+            }
+            self.env['project.sequence.log'].sudo().create(audit_vals)
+            _logger.error(f"Error general al crear el proyecto: {str(e)}")
+            raise ValidationError(_('Ocurrió un error al crear el proyecto. Por favor, inténtelo de nuevo.'))
 
 
     def write(self, vals):

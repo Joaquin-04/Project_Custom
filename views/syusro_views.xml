@@ -61,8 +61,7 @@
         </field>
     </record>
 
-        <!-- Menú -->
-    <menuitem id="menu_project_config" name="Configuración" parent="project.menu_project_config"/>
-    <menuitem id="menu_project_syusro" name="SyUsro" parent="project.menu_project_config" action="action_project_syusro"/>
+    <!-- Menú -->
+    <menuitem id="menu_project_syusro" name="SyUsro" parent="menu_project_config" action="action_project_syusro"/>
    
 </odoo>

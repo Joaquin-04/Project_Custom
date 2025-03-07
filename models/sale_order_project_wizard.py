@@ -113,49 +113,62 @@ class SaleOrderProjectWizard(models.TransientModel):
 
     def action_apply(self):
         """ Aplica la selección del proyecto o crea uno nuevo con validaciones"""
-        if self.create_new:
-            if not self.new_project_name:
-                raise UserError(_("Debe ingresar un nombre para el nuevo proyecto."))
-
-            project = self.env['project.project'].create({
-                'name': self.new_project_name,
-                'company_id': self.sale_order_id.company_id.id,
-                'obra_padre_id': self.obra_padre_id.id if self.obra_padre_id else False,
-            })
-
-            if self.obra_padre_id:
+        try:
+            if self.create_new:
+                if not self.new_project_name:
+                    raise UserError(_("Debe ingresar un nombre para el nuevo proyecto."))
+    
+                project = self.env['project.project'].create({
+                    'name': self.new_project_name,
+                    'company_id': self.sale_order_id.company_id.id,
+                    'obra_padre_id': self.obra_padre_id.id if self.obra_padre_id else False,
+                })
+    
+                if self.obra_padre_id:
                     # Copiar campos del padre
                     project._onchange_obra_padre_id()
+                else:
+                    # Copiar campos desde el CRM lead si existe
+                    sale_order = self.env['sale.order'].browse(self.env.context.get('default_sale_order_id'))
+                    opportunity = sale_order.opportunity_id
+                    if opportunity:
+                        self._copy_fields_from_opportunity(project, opportunity, project.FIELDS_TO_INCLUDE)
+                        # Copiar campos adicionales específicos
+                        project.obra_vend_cd = opportunity.vendedor_id
+                        project.obra_jefe_cd = opportunity.jefe_obra_id
+                        # project.obra_tec_cd = opportunity.cotizador_id  # Asumiendo relación
+                        # project.tiene_colocacion = 'S' if opportunity.probability > 50 else 'N'
+    
+                        # Para campos computados que son stored=True
+                        if opportunity.ubi_code:
+                            project.ubi_code = opportunity.ubi_code
             else:
-                # Copiar campos desde el CRM lead si existe
-                sale_order = self.env['sale.order'].browse(self.env.context.get('default_sale_order_id'))
-                opportunity = sale_order.opportunity_id
-                if opportunity:
-                    self._copy_fields_from_opportunity(project, opportunity, project.FIELDS_TO_INCLUDE)
-                    # Copiar campos adicionales específicos
-                    project.obra_vend_cd = opportunity.vendedor_id
-                    project.obra_jefe_cd = opportunity.jefe_obra_id
-                    #project.obra_tec_cd = opportunity.cotizador_id  # Asumiendo relación
-                    #project.tiene_colocacion = 'S' if opportunity.probability > 50 else 'N'
-                    
-                    # Para campos computados que son stored=True
-                    if opportunity.ubi_code:
-                        project.ubi_code = opportunity.ubi_code
-           
-        else:
-            project = self.project_id
-
-        # Asignar el proyecto a la orden de venta
-        self.sale_order_id.project_id = project
-        #self.sale_order_id._onchange_project_id()
-
-        # Forzar actualización de líneas
-        self.sale_order_id._update_analytic_distribution()
-
-        #Confirmar la orden de venta
-        self.sale_order_id.action_confirm()
-
-        return {'type': 'ir.actions.act_window_close'}
+                project = self.project_id
+    
+            # Asignar el proyecto a la orden de venta
+            self.sale_order_id.project_id = project
+            # self.sale_order_id._onchange_project_id()
+    
+            # Forzar actualización de líneas
+            self.sale_order_id._update_analytic_distribution()
+    
+            # Confirmar la orden de venta
+            self.sale_order_id.action_confirm()
+    
+            return {'type': 'ir.actions.act_window_close'}
+    
+        except Exception as e:
+            # Registrar el log de auditoría para errores
+            audit_vals = {
+                'project_id': project.id if 'project' in locals() else False,
+                'user_id': self.env.uid,
+                'company_id': self.sale_order_id.company_id.id,
+                'state': 'error',
+                'message': f'Error en action_apply: {str(e)}'
+            }
+            self.env['project.sequence.log'].sudo().create(audit_vals)
+            _logger.error(f"Error en action_apply: {str(e)}")
+            raise UserError(_('Ocurrió un error al aplicar la acción. Por favor consulte con el administrador.'))
 
     
 

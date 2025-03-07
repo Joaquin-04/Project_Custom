@@ -12,3 +12,5 @@ from . import project_ObraTipo
 from . import project_Ubi
 from . import syusro
 from . import project_cartel_obra
+from . import project_sequence_log
+from . import change_obra_nr_wizard

@@ -1,0 +1,51 @@
+<odoo>
+    <!-- Vista en árbol -->
+    <record id="view_project_sequence_log_tree" model="ir.ui.view">
+        <field name="name">project.sequence.log.tree</field>
+        <field name="model">project.sequence.log</field>
+        <field name="arch" type="xml">
+            <tree string="Logs de Secuencia">
+                <field name="create_date"/>
+                <field name="project_id"/>
+                <field name="sequence_number"/>
+                <field name="user_id"/>
+                <field name="company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Vista de formulario -->
+    <record id="view_project_sequence_log_form" model="ir.ui.view">
+        <field name="name">project.sequence.log.form</field>
+        <field name="model">project.sequence.log</field>
+        <field name="arch" type="xml">
+            <form string="Log de Secuencia">
+                <sheet>
+                    <group>
+                        <field name="project_id"/>
+                        <field name="sequence_number"/>
+                        <field name="user_id"/>
+                        <field name="company_id"/>
+                        <field name="message"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para acceder al log -->
+    <record id="action_project_sequence_log" model="ir.actions.act_window">
+        <field name="name">Logs de Secuencia</field>
+        <field name="res_model">project.sequence.log</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Aquí se registran las asignaciones de secuencia para proyectos.
+            </p>
+        </field>
+    </record>
+
+    
+    <menuitem id="menu_project_sequence_log" name="Logs de Secuencia" parent="menu_project_config" action="action_project_sequence_log"
+        groups="Project_Custom.group_project_audit_admin"/>
+</odoo>

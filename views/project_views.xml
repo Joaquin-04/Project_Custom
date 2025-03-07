@@ -6,6 +6,21 @@
         <field name="inherit_id" ref="project.edit_project"/>
         <field name="priority" eval="331"/>
         <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <button name="%(Project_Custom.action_change_obra_nr_wizard)d"
+                        string="Modificar Número de Obra"
+                        type="action"
+                        class="oe_highlight"
+                        groups="Project_Custom.group_project_change_sequence_admin"/>
+
+            </xpath>
+
+
+            
             <xpath expr="//notebook" position="inside">
                 <page string="Extras">
                     <group string="Información de Obra">

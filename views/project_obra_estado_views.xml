@@ -53,8 +53,6 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <!-- Menú en Configuraciones -->
-    <menuitem id="menu_project_obraestado_root" name="obra estado" sequence="10"/>
-    <menuitem id="menu_project_obraestado_config" name="Obras estado" parent="project.menu_project_config" action="action_project_obraestado" sequence="10"/>
+    <menuitem id="menu_project_obraestado_config" name="Obras estado" parent="menu_project_config" action="action_project_obraestado"/>
 
 </odoo>

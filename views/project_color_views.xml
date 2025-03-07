@@ -51,7 +51,7 @@
     </record>
 
     <!-- Menú en Configuraciones -->
-    <menuitem id="menu_project_color_root" name="Colores" sequence="10"/>
-    <menuitem id="menu_project_color_config" name="Gestión de Colores" parent="project.menu_project_config" action="action_project_color" sequence="10"/>
+    <menuitem id="menu_project_color_config" name="Color" parent="menu_project_config" action="action_project_color"/>
+    
 
 </odoo>

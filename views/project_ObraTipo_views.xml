@@ -73,6 +73,5 @@
     </record>
 
     <!-- Menú -->
-    <menuitem id="menu_project_config" name="Configuración" parent="project.menu_project_config"/>
-    <menuitem id="menu_project_obratipo" name="Obras Tipo" parent="project.menu_project_config" action="action_project_obratipo"/>
+    <menuitem id="menu_project_obratipo" name="Obras Tipo" parent="menu_project_config" action="action_project_obratipo"/>
 </odoo>

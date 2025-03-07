@@ -1,5 +1,6 @@
 <odoo>
-    <data noupdate="0">
+    <!-- noupdate="1" esto permite que no se reinicie la secuencia cuando se actualice el modulo -->
+    <data noupdate="1">
         <!--Si necesitas que la secuencia no se reinicie al actualizar el módulo, usa noupdate="0" o elimina el atributo noupdate.-->
         <record id="seq_project_number" model="ir.sequence">
             <field name="name">Project Number</field>

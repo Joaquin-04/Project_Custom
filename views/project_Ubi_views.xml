@@ -65,8 +65,7 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <!-- Menú en Configuraciones -->
-    <menuitem id="menu_ubic_root" name="Ubicaciones" sequence="10"/>
-    <menuitem id="menu_ubic_config" name="Gestión de Ubicaciones" parent="project.menu_project_config" action="action_ubic" sequence="10"/>
+    
+    <menuitem id="menu_ubic_config" name="Gestión de Ubicaciones" parent="menu_project_config" action="action_ubic" sequence="10"/>
 
 </odoo>

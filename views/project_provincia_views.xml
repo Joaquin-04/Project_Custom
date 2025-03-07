@@ -53,7 +53,6 @@
         <field name="view_mode">tree,form</field>
     </record>
 
-    <!-- Menú en Configuraciones -->
-    <menuitem id="menu_project_provincia_root" name="Provincia" sequence="10"/>
-    <menuitem id="menu_project_provincia_config" name="Provincias" parent="project.menu_project_config" action="action_project_provincia" sequence="10"/>
+    
+    <menuitem id="menu_project_provincia_config" name="Provincias" parent="menu_project_config" action="action_project_provincia" sequence="10"/>
 </odoo>

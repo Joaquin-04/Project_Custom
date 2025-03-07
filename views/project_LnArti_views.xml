@@ -51,7 +51,7 @@
     </record>
 
     <!-- Menú en Configuraciones -->
-    <menuitem id="menu_project_lnarti_root" name="LnArti" sequence="10"/>
-    <menuitem id="menu_project_lnarti_config" name="LnArti" parent="project.menu_project_config" action="action_project_lnarti" sequence="10"/>
+    <menuitem id="menu_project_lnarti_config" name="Lnarti" parent="menu_project_config" action="action_project_lnarti"/>
+    
 
 </odoo>
