@@ -20,27 +20,24 @@ class ProjectProject(models.Model):
         tracking=True
     )
 
-    lead_ids = fields.Many2many(
+    
+    lead_ids = fields.One2many(
         'crm.lead',
-        'project_crm_rel',    # Nombre de la tabla relacional
-        'project_id',         # Columna para el ID de project.project
-        'crm_lead_id',        # Columna para el ID de crm.lead
-        string="Leads",
-        store=True,
+        'project_id',
+        string="Transferencias",
         readonly=True,
         tracking=True
     )
 
-    stock_picking_ids = fields.Many2many(
+    
+    stock_picking_ids = fields.One2many(
         'stock.picking',
-        'project_stock_picking_rel',  # Nombre de la tabla relacional
-        'project_id',                 # Columna para el ID de project.project
-        'stock_picking_id',           # Columna para el ID de stock.picking
+        'project_id',
         string="Transferencias",
-        store=True,
         readonly=True,
         tracking=True
     )
+
 
     # Campo 'name' sobreescrito con límite
     name = fields.Char(

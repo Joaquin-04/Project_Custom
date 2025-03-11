@@ -23,4 +23,21 @@ class ChangeObraNrWizard(models.TransientModel):
 
         # Actualizar el número de obra
         project.write({'obra_nr': self.new_obra_nr})
+
+        # Actualizar el campo en las órdenes de venta relacionadas
+        project.sale_order_ids.write({
+            'x_studio_nv_numero_de_obra_relacionada': self.new_obra_nr
+        })
+
+        # Actualizar el campo en las transferencias (stock.picking) relacionadas
+        project.stock_picking_ids.write({
+            'x_studio_nv_numero_de_obra_relacionada': self.new_obra_nr
+        })
+
+        # Actualizar el campo en las transferencias (stock.picking) relacionadas
+        project.lead_ids.write({
+            'x_studio_nv_numero_de_obra_relacionada': self.new_obra_nr
+        })
+
+        
         return {'type': 'ir.actions.act_window_close'}

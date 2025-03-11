@@ -147,6 +147,8 @@ class SaleOrderProjectWizard(models.TransientModel):
     
             # Asignar el proyecto a la orden de venta
             self.sale_order_id.project_id = project
+            # Asignar el proyecto al lead relacionado a la orden de venta
+            self.sale_order_id.opportunity_id.project_id =project 
             # self.sale_order_id._onchange_project_id()
     
             # Forzar actualización de líneas

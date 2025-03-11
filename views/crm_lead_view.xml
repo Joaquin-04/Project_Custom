@@ -55,6 +55,24 @@
                     </group>
                 </page>
             </xpath>
+
+            <xpath expr="//field[@name='x_studio_nv_tipo']" position="attributes"> <!-- Añade después de la última pestaña -->
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            
+            <xpath expr="//field[@name='x_studio_nv_linea']" position="attributes"> <!-- Añade después de la última pestaña -->
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='x_studio_nv_color_1']" position="attributes"> <!-- Añade después de la última pestaña -->
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='x_studio_nv_cartel']" position="attributes"> <!-- Añade después de la última pestaña -->
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
         </field>
     </record>
 </odoo>
