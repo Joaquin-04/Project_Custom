@@ -24,7 +24,7 @@ class ProjectProject(models.Model):
     lead_ids = fields.One2many(
         'crm.lead',
         'project_id',
-        string="Transferencias",
+        string="Leads",
         readonly=True,
         tracking=True
     )
