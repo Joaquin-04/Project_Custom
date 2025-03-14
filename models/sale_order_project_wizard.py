@@ -172,7 +172,7 @@ class SaleOrderProjectWizard(models.TransientModel):
         except Exception as e:
             # Registrar el log de auditoría para errores
             audit_vals = {
-                'project_id': project.id if 'project' in locals() else False,
+                'project_id': 0,
                 'user_id': self.env.uid,
                 'company_id': self.sale_order_id.company_id.id,
                 'state': 'error',

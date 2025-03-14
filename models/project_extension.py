@@ -24,7 +24,7 @@ class ProjectProject(models.Model):
     lead_ids = fields.One2many(
         'crm.lead',
         'project_id',
-        string="Leads",
+        string="Transferencias",
         readonly=True,
         tracking=True
     )
@@ -61,7 +61,7 @@ class ProjectProject(models.Model):
     # Nuevo campo que sirve para la importación del excel
     obra_padre_nr = fields.Char(
         string = "Número de Obra Padre",
-        readonly=True,
+        readonly=False,
         copy=False,
         store=True,
         size=5,

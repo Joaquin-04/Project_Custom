@@ -23,6 +23,13 @@ class ChangeObraNrWizard(models.TransientModel):
 
         # Actualizar el número de obra
         project.write({'obra_nr': self.new_obra_nr})
+        
+        # El numero de la obra padre sera igual al numero de obra
+        project['obra_padre_nr'] = project.obra_nr
+
+        # Si el proyecto tiene obra padre entonces toma el numero de obra de la obra padre
+        if project.obra_padre_id:
+            project['obra_padre_nr'] = project.obra_padre_id.obra_nr
 
         # Actualizar el campo en las órdenes de venta relacionadas
         project.sale_order_ids.write({
