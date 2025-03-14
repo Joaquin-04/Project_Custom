@@ -18,12 +18,18 @@ class StockPicking(models.Model):
         picking = super(StockPicking, self).create(vals)
 
         # Buscamos la venta relacionada
-        sale_order = picking.sale_id or picking.sale_stock_link_id.sale_order_id
-
+        sale_order = picking.sale_id 
         if sale_order and sale_order.project_id:
             # Asignamos el proyecto de la venta al remito
             picking.project_id = sale_order.project_id
             _logger.info(f"Proyecto {sale_order.project_id.name} asignado al remito {picking.name}")
+        
+        sale_order = picking.sale_stock_link_id.sale_order_id
+        if sale_order and sale_order.project_id:
+            # Asignamos el proyecto de la venta al remito
+            picking.project_id = sale_order.project_id
+            _logger.info(f"Proyecto {sale_order.project_id.name} asignado al remito {picking.name}")
+        
 
         return picking
 
