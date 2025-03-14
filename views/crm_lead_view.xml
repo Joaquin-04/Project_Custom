@@ -3,7 +3,7 @@
         <field name="name">crm.lead.form.inherit.project</field>
         <field name="model">crm.lead</field>
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
-        <field name="priority" eval="161"/>
+        <field name="priority" eval="181"/>
         <field name="arch" type="xml">
 
             <xpath expr="//page[last()]" position="after"> <!-- Añade después de la última pestaña -->
@@ -55,7 +55,6 @@
                     </group>
                 </page>
             </xpath>
-
             <!--
 
             <xpath expr="//field[@name='x_studio_nv_tipo']" position="attributes">

@@ -10,6 +10,12 @@ class SaleOrder(models.Model):
     project_id = fields.Many2one(
         'project.project',
         string="Proyecto",
+        tracking=True
+    )
+    studio_almacen = fields.Many2one(
+        'stock.warehouse', 
+        string="Almacén",
+        tracking=True
     )
 
     @api.model

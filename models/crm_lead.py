@@ -26,21 +26,30 @@ class CrmLead(models.Model):
         'project.syusro', 
         string="Vendedor", 
         help="Código de Vendedor",
-        tracking=True
+        tracking=True,
+        compute="_compute_vendedor_id",
+        store=True,
+        readonly=False,
     )
     
     cotizador_id = fields.Many2one(
         'project.syusro', 
         string="NV cotizador", 
         help="Código del Cotizador",
-        tracking=True
+        tracking=True,
+        compute="_compute_cotizador_id",
+        store=True,
+        readonly=False,
     )
     
     jefe_obra_id = fields.Many2one(
         'project.syusro', 
         string="NV Jefe de Obra", 
         help="Código de Jefe de Obra",
-        tracking=True
+        tracking=True,
+        compute="_compute_jefe_obra_id",
+        store=True,
+        readonly=False,
     )
 
     project_ubi_id = fields.Many2one(
@@ -127,6 +136,65 @@ class CrmLead(models.Model):
     #Computes
     ##################################################################################################################
 
+    @api.depends('user_id')
+    def _compute_vendedor_id(self):
+        for lead in self:
+            if lead.user_id:
+                # Buscar al empleado cuyo user_id coincide con el user del lead
+                employee = self.env['hr.employee'].search([('user_id', '=', lead.user_id.id)], limit=1)
+                if employee:
+                    _logger.warning(f"empleados: {employee}")
+                    # Buscar en project.syusro aquel registro que tenga al empleado relacionado
+                    syusro = self.env['project.syusro'].search([('employee_ids', 'in', employee.id)], limit=1)
+                    _logger.warning(f"usuarios del sistema gx: {syusro}")
+                    lead.vendedor_id = syusro.id
+                    _logger.warning("Asignado vendedor %s para el lead %s", syusro.display_name, lead.name)
+                else:
+                    lead.vendedor_id = False
+            else:
+                lead.vendedor_id = False
+
+
+    @api.depends('x_studio_nv_cotizador')
+    def _compute_cotizador_id(self):
+        for lead in self:
+            if lead.x_studio_nv_cotizador:
+                # Buscar al empleado cuyo user_id coincide con el user del lead
+                employee = self.env['hr.employee'].search([('user_id', '=', lead.x_studio_nv_cotizador.id)], limit=1)
+                if employee:
+                    _logger.warning(f"empleados: {employee}")
+                    # Buscar en project.syusro aquel registro que tenga al empleado relacionado
+                    syusro = self.env['project.syusro'].search([('employee_ids', 'in', employee.id)], limit=1)
+                    _logger.warning(f"usuarios del sistema gx: {syusro}")
+                    lead.cotizador_id = syusro.id
+                    _logger.warning("Asignado cotizador_id %s para el lead %s", syusro.display_name, lead.name)
+                else:
+                    lead.cotizador_id = False
+            else:
+                lead.cotizador_id = False
+
+
+    @api.depends('x_studio_many2one_field_EvMqQ')
+    def _compute_jefe_obra_id(self):
+        for lead in self:
+            if lead.x_studio_many2one_field_EvMqQ:
+                # Buscar al empleado cuyo user_id coincide con el user del lead
+                employee = self.env['hr.employee'].search([('user_id', '=', lead.x_studio_many2one_field_EvMqQ.id)], limit=1)
+                if employee:
+                    _logger.warning(f"empleados: {employee}")
+                    # Buscar en project.syusro aquel registro que tenga al empleado relacionado
+                    syusro = self.env['project.syusro'].search([('employee_ids', 'in', employee.id)], limit=1)
+                    _logger.warning(f"usuarios del sistema gx: {syusro}")
+                    lead.jefe_obra_id = syusro.id
+                    _logger.warning("Asignado jefe_obra_id %s para el lead %s", syusro.display_name, lead.name)
+                else:
+                    lead.jefe_obra_id = False
+            else:
+                lead.jefe_obra_id = False
+
+
+    
+    
     @api.depends('project_ubi_id')
     def _compute_cod_postal_proyect(self):
         for record in self:

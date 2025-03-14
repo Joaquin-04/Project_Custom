@@ -21,7 +21,7 @@ class ProjectSyusro(models.Model):
         'hr.employee',
         string="Empleados",
         compute="_compute_employee_ids",
-        store=False,
+        store=True,
         help="Empleados de todas las compañías relacionados con este Syusro"
     )
 
