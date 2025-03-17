@@ -180,7 +180,7 @@ class SaleOrderProjectWizard(models.TransientModel):
             }
             self.env['project.sequence.log'].sudo().create(audit_vals)
             _logger.error(f"Error en action_apply: {str(e)}")
-            raise UserError(_('Ocurrió un error al aplicar la acción. Por favor consulte con el administrador.'))
+            raise UserError(_(f'Ocurrió un error al aplicar la acción.\n {str(e)}'))
 
     
 
