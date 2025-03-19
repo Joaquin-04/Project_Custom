@@ -18,6 +18,7 @@ class ProjectSequenceLog(models.Model):
         help="Número asignado por la secuencia.",
         default="0"
     )
+    
     user_id = fields.Many2one(
         'res.users', 
         string="Usuario",
