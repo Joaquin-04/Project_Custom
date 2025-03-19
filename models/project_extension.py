@@ -1,6 +1,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from psycopg2 import IntegrityError
+import re
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ class ProjectProject(models.Model):
     lead_ids = fields.One2many(
         'crm.lead',
         'project_id',
-        string="Transferencias",
+        string="Leads",
         readonly=True,
         tracking=True
     )
@@ -154,7 +155,8 @@ class ProjectProject(models.Model):
     nombre_carga_obra = fields.Char(
         string="Nombre de carga Obra:",
         size=29,  # Original: 30 → 29
-        tracking=True
+        tracking=True,
+        invisible=True,
     )
 
     direccion = fields.Char(
@@ -267,8 +269,8 @@ class ProjectProject(models.Model):
     # 9. Indica si tiene Colocación (ObraColoca) -> asumiendo S/N
     tiene_colocacion = fields.Selection(
         [
-            ('S', 'Sí'),
-            ('N', 'No'),
+            ('si', 'S'),
+            ('no', 'N'),
         ],
         string="¿Tiene Colocación?",
         tracking=True
@@ -339,25 +341,29 @@ class ProjectProject(models.Model):
     obra_cmpl = fields.Char(
         string="YA casi no se usa",
         tracking=True,
-        default="0"
+        default="0",
+        invisible=True,
     )
     
     obra_ind_cmpl = fields.Char(
         string="YA casi no se usa",
         tracking=True,
-        default="0"
+        default="0",
+        invisible=True,
     )
     
     obra_obs = fields.Char(
         string="YA casi no se usa",
         tracking=True,
-        default="0"
+        default="0",
+        invisible=True,
     )
     
     obra_crc = fields.Char(
         string="YA casi no se usa",
         tracking=True,
-        default="0"
+        default="0",
+        invisible=True,
     )
 
 
@@ -660,10 +666,32 @@ class ProjectProject(models.Model):
 
     @api.model
     def create(self, vals):
+        # Definir una función para limpiar los números de teléfono
+        def limpiar_numero_telefono(numero):
+            if numero:
+                # Eliminar todos los caracteres no numéricos incluyendo '+' y espacios
+                numero_limpio = re.sub(r'[^\d]', '', numero)
+                # Eliminar ceros iniciales si es necesario (opcional)
+                return numero_limpio.lstrip('0') if numero_limpio else None
+            return numero
+
+        # Limpiar los campos de números de teléfono
+        campos_telefono = ['celular_1', 'telefono_fijo', 'fax_1', 'fax_2']
+        for campo in campos_telefono:
+            if campo in vals:
+                vals[campo] = limpiar_numero_telefono(vals[campo])
+
+
+        if 'kg_perfileria' in vals:
+            vals['kg_perfileria']=round(vals['kg_perfileria'])
+
+
+        
         # Asignar la compañía si no se proporcionó
         if not vals.get('company_id'):
             vals['company_id'] = self.env.company.id
 
+        
         # Crear cuenta analítica automáticamente
         if not vals.get('analytic_account_id'):
             analytic_account = self.env['account.analytic.account'].create({
@@ -672,6 +700,14 @@ class ProjectProject(models.Model):
                 'plan_id': 1,
             })
             vals['analytic_account_id'] = analytic_account.id
+
+        
+        #Por defecto poner el estado de la obra en 2001
+        estado_de_iniciio = self.env['project.obraestado'].search([('cod','=','2001')],limit=1)
+        if estado_de_iniciio:
+            vals['estado_obra_proyect'] = estado_de_iniciio.id
+
+        
 
         try:
             # Intentar crear el proyecto

@@ -17,10 +17,19 @@ class CrmLead(models.Model):
     
     project_id = fields.Many2one(
         'project.project',
-        string="Proyecto",
+        string="NV Numero de obra relacionada",
         domain="[('company_id', '=', company_id)]",
         tracking=True
         )
+
+    obra_padre_id = fields.Many2one(
+        'project.project',
+        string="NV Numero de obra padre",
+        domain="[('company_id', '=', company_id)]",  # Filtra por compañías permitidas
+        no_create=True,
+        size=29,
+        tracking=True,
+    )
 
     vendedor_id = fields.Many2one(
         'project.syusro', 
@@ -54,7 +63,7 @@ class CrmLead(models.Model):
 
     project_ubi_id = fields.Many2one(
         'project.ubic',
-        string="Obra Ubicacion",
+        string="MD Ubicacion Geografica:",
         #Obra ubi
         tracking=True
     )
@@ -62,7 +71,8 @@ class CrmLead(models.Model):
     cod_postal_proyect = fields.Integer(
         compute="_compute_cod_postal_proyect", 
         string="Cod Postal",
-        tracking=True
+        tracking=True,
+        invisible=True,
     )
 
     ubi_area_proyect = fields.Integer(
@@ -79,7 +89,7 @@ class CrmLead(models.Model):
 
     provincia_id = fields.Many2one(
         'project.provincia',
-        string="Provincia",
+        string="NV Provincia",
         help="Selecciona la provincia a la que pertenece el proyecto.",
         tracking=True
     )
@@ -95,21 +105,21 @@ class CrmLead(models.Model):
 
     lnart_proyect_id = fields.Many2one(
         'project.lnarti',
-        string="Linea",
+        string="NV Linea",
         #LnArtic
         tracking=True
     )
 
     obratipo_proyect_id = fields.Many2one(
         'project.obratipo',
-        string="Obra Tipo",
+        string="NV Tipo",
         #Obra tipo
         tracking=True
     )
 
     color_proyect_id = fields.Many2one(
         'project.color',
-        string="Color proyecto",
+        string="NV Color",
         #ObraColoCd
         tracking=True
     )
@@ -118,12 +128,13 @@ class CrmLead(models.Model):
         'project.obraestado',
         string="Estado obra",
         #ObraEstado
-        tracking=True
+        tracking=True,
+        invisible=True,
     )
 
     cartel_obra_id = fields.Many2one(
         'project.cartel.obra',
-        string="Cartel de Obra",
+        string="NV Cartel",
         tracking=True
     )
 
@@ -135,6 +146,9 @@ class CrmLead(models.Model):
     ##################################################################################################################
     #Computes
     ##################################################################################################################
+
+
+    
 
     @api.depends('user_id')
     def _compute_vendedor_id(self):
@@ -242,7 +256,7 @@ class CrmLead(models.Model):
     def write(self, vals):
         _logger.warning("Write!!!")
         _logger.warning(f"valores: {vals}")
-        
+
         if 'project_id' in vals:
             if vals['project_id']:
                 # Se ha asignado un proyecto, obtenemos su información
@@ -258,12 +272,27 @@ class CrmLead(models.Model):
                     else:
                         new_vals['x_studio_nv_numero_de_sp'] = False
                     vals.update(new_vals)
+                    
+            elif 'obra_padre_id' in vals:
+                if vals['obra_padre_id']:
+                    project = self.env['project.project'].browse(vals['obra_padre_id'])
+                    if project: 
+                        new_vals = {}
+                        if project.obra_nr:
+                            new_vals['x_studio_nv_numero_de_sp'] = project.obra_nr
+                        else:
+                            new_vals['x_studio_nv_numero_de_sp'] = False
+
+                        vals.update(new_vals)
+                    
             else:
                 # Se está borrando el proyecto, establecemos los campos en 0 o False
                 vals.update({
                     'x_studio_nv_numero_de_obra_relacionada': 0,
                     'x_studio_nv_numero_de_sp': 0,
                 })
+
+        
         return super(CrmLead, self).write(vals)
 
 

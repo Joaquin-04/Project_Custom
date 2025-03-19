@@ -82,6 +82,98 @@ class SaleOrderProjectWizard(models.TransientModel):
         # Agrega más mapeos según necesidad
     }
 
+    # Mapeo para los campos en los que se requiere elegir entre el valor del lead y, en su defecto, del proyecto padre.
+    # Por ejemplo, para el vendedor queremos que siempre se use el valor del lead.
+    LEAD_PARENT_SELECTION_MAPPING = {
+        'color_proyect': {
+            'lead_field': 'color_proyect_id',  # Campo en el CRM lead
+            'parent_field': 'color_proyect',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'lnart_proyect': {
+            'lead_field': 'lnart_proyect_id',  # Campo en el CRM lead
+            'parent_field': 'lnart_proyect',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'obratipo_proyect': {
+            'lead_field': 'obratipo_proyect_id',  # Campo en el CRM lead
+            'parent_field': 'obratipo_proyect',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'obratipo_ubi': {
+            'lead_field': 'project_ubi_id',  # Campo en el CRM lead
+            'parent_field': 'obratipo_ubi',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'padre'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'direccion': {
+            'lead_field': 'x_studio_nv_direccion',  # Campo en el CRM lead
+            'parent_field': 'direccion',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'telefono_fijo': {
+            'lead_field': 'x_studio_telefono_fijo',  # Campo en el CRM lead
+            'parent_field': 'telefono_fijo',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'padre'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'celular_1': {
+            'lead_field': 'x_studio_celular_1',  # Campo en el CRM lead
+            'parent_field': 'celular_1',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'fax_1': {
+            'lead_field': 'x_studio_fax1',  # Campo en el CRM lead
+            'parent_field': 'fax_1',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'padre'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'fax_2': {
+            'lead_field': 'x_studio_fax2',  # Campo en el CRM lead
+            'parent_field': 'fax_2',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'codigo_plus': {
+            'lead_field': 'x_studio_nv_codigo_plus',  # Campo en el CRM lead
+            'parent_field': 'codigo_plus',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'fecha_pactada_entrega': {
+            'lead_field': 'x_studio_nv_fecha_probable_de_entrega_de_obra',  # Campo en el CRM lead
+            'parent_field': 'fecha_pactada_entrega',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'strict_lead'   # Nueva prioridad para campos obligatorios desde el lead
+        },
+        'fecha_renegociada_entrega': {
+            'lead_field': 'x_studio_nv_fecha_probable_de_entrega_de_obra',  # Campo en el CRM lead
+            'parent_field': 'fecha_renegociada_entrega',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'strict_lead'   # Nueva prioridad para campos obligatorios desde el lead
+        },
+        'obra_vend_cd': {
+            'lead_field': 'vendedor_id',  # Campo en el CRM lead
+            'parent_field': 'obra_vend_cd',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'obra_jefe_cd': {
+            'lead_field': 'jefe_obra_id',  # Campo en el CRM lead
+            'parent_field': 'obra_jefe_cd',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'cartel_obra_id': {
+            'lead_field': 'cartel_obra_id',  # Campo en el CRM lead
+            'parent_field': 'cartel_obra_id',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'lead'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'provincia_id': {
+            'lead_field': 'provincia_id',  # Campo en el CRM lead
+            'parent_field': 'provincia_id',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'padre'  # 'lead' significa que se toma siempre el valor del lead si existe
+        },
+        'kg_perfileria': {
+            'lead_field': 'x_studio_nv_kg_perfilera',  # Campo en el CRM lead
+            'parent_field': 'kg_perfileria',  # (Opcional) Si en algún caso deseas fallback al padre
+            'priority': 'strict_lead'   # Nueva prioridad para campos obligatorios desde el lead
+        },
+        
+    }
+
+
 
     @api.model
     def default_get(self, fields_list):
@@ -92,6 +184,11 @@ class SaleOrderProjectWizard(models.TransientModel):
         lead = sale_order.opportunity_id
 
         project_id = sale_order.opportunity_id.project_id
+
+        obra_padre_id = sale_order.opportunity_id.obra_padre_id
+
+        if obra_padre_id:
+            res['obra_padre_id']=obra_padre_id
         
         if project_id:
             res['project_id']=project_id
@@ -123,25 +220,30 @@ class SaleOrderProjectWizard(models.TransientModel):
                     'company_id': self.sale_order_id.company_id.id,
                     'obra_padre_id': self.obra_padre_id.id if self.obra_padre_id else False,
                 })
-    
-                if self.obra_padre_id:
+
+                # Copiar campos desde el CRM lead si existe
+                sale_order = self.env['sale.order'].browse(self.env.context.get('default_sale_order_id'))
+                opportunity = sale_order.opportunity_id
+                if opportunity:
+                    self._copy_fields_from_opportunity(project, opportunity, project.FIELDS_TO_INCLUDE)
+                    # Copiar campos adicionales específicos
+                    #project.obra_vend_cd = opportunity.vendedor_id
+                    #project.obra_jefe_cd = opportunity.jefe_obra_id
+                    # project.obra_tec_cd = opportunity.cotizador_id  # Asumiendo relación
+                    # project.tiene_colocacion = 'S' if opportunity.probability > 50 else 'N'
+
+                    # Para campos computados que son stored=True
+                    #if opportunity.ubi_code:
+                    #    project.ubi_code = opportunity.ubi_code
+            
+                    # Aplicar lógica para campos donde se elige entre lead y proyecto padre
+                    self._apply_lead_vs_parent_field(project, opportunity, self.LEAD_PARENT_SELECTION_MAPPING)
+                    
+                elif self.obra_padre_id:
                     # Copiar campos del padre
                     project._onchange_obra_padre_id()
-                else:
-                    # Copiar campos desde el CRM lead si existe
-                    sale_order = self.env['sale.order'].browse(self.env.context.get('default_sale_order_id'))
-                    opportunity = sale_order.opportunity_id
-                    if opportunity:
-                        self._copy_fields_from_opportunity(project, opportunity, project.FIELDS_TO_INCLUDE)
-                        # Copiar campos adicionales específicos
-                        project.obra_vend_cd = opportunity.vendedor_id
-                        project.obra_jefe_cd = opportunity.jefe_obra_id
-                        # project.obra_tec_cd = opportunity.cotizador_id  # Asumiendo relación
-                        # project.tiene_colocacion = 'S' if opportunity.probability > 50 else 'N'
-    
-                        # Para campos computados que son stored=True
-                        if opportunity.ubi_code:
-                            project.ubi_code = opportunity.ubi_code
+
+            
             else:
                 project = self.project_id
     
@@ -153,10 +255,10 @@ class SaleOrderProjectWizard(models.TransientModel):
             
             # Asignar el numero del proyecto al lead relacionado a la orden de venta
 
-            self.sale_order_id.opportunity_id.x_studio_nv_numero_de_sp =project.obra_nr
+            self.sale_order_id.opportunity_id.x_studio_nv_numero_de_obra_relacionada =project.obra_nr
 
             # Asignar el numero del proyecto padre del proyecto al lead relacionado a la orden de venta
-            self.sale_order_id.opportunity_id.x_studio_nv_numero_de_obra_relacionada =project.obra_padre_nr
+            self.sale_order_id.opportunity_id.x_studio_nv_numero_de_sp =project.obra_padre_nr
 
 
             # self.sale_order_id._onchange_project_id()
@@ -180,11 +282,11 @@ class SaleOrderProjectWizard(models.TransientModel):
             }
             self.env['project.sequence.log'].sudo().create(audit_vals)
             _logger.error(f"Error en action_apply: {str(e)}")
-            raise UserError(_('Ocurrió un error al aplicar la acción. Por favor consulte con el administrador.'))
+            raise UserError(_(f'Ocurrió un error al aplicar la acción.\n {str(e)}'))
 
     
 
-    def _copy_fields_from_opportunity(self, project, opportunity, fields_to_include):
+    def _copy_fields_from_opportunity(self, project, opportunity,fields_to_include):
         """Copia campos desde el lead al proyecto usando el mapeo definido"""
         for project_field, lead_field in self.LEAD_TO_PROJECT_MAPPING.items():
             try:
@@ -209,6 +311,89 @@ class SaleOrderProjectWizard(models.TransientModel):
             except Exception as e:
                 _logger.error(f"Error copiando {lead_field} a {project_field}: {str(e)}")
                 continue
+
+    
+
+
+    def _apply_lead_vs_parent_field(self, project, opportunity, field_mapping):
+        """
+        Aplica la lógica de selección entre el valor del lead y el del proyecto padre.
+        
+        field_mapping: dict donde cada clave es un campo del proyecto y su valor es un dict con:
+            - lead_field: nombre del campo en el CRM lead.
+            - parent_field: nombre del campo en el proyecto padre (opcional).
+            - priority: 'lead' (usar siempre el valor del lead si existe) o 'parent_if_empty' (usar el del padre si el lead está vacío).
+        
+        Para el caso del teléfono (campo 'telefono_fijo'), se prioriza el valor del lead; si está vacío,
+        se usa el valor del cliente (partner_id.phone).
+        """
+        # Función para formatear valores
+        def format_value(value):
+            if isinstance(value, models.BaseModel):
+                return f"(ID: {value.id}, Nombre: {value.display_name})" if value else "None"
+            elif isinstance(value, bool):
+                return str(bool(value))
+            elif value is None:
+                return "None"
+            return str(value)
+
+        
+        parent_project = project.obra_padre_id
+        for proj_field, config in field_mapping.items():
+            # Caso especial para el campo teléfono
+            if proj_field == 'celular_1':
+                # Intentar obtener el valor del lead
+                lead_value = getattr(opportunity, config.get('lead_field'), False)
+                # Si no hay valor en el lead, intentamos tomarlo del teléfono del cliente (partner_id.phone)
+                if not lead_value and opportunity.partner_id:
+                    lead_value = opportunity.partner_id.phone
+                # Si hay un proyecto padre y el lead no tiene valor, obtenemos el valor del padre
+                parent_value = parent_project and config.get('parent_field') and getattr(parent_project, config.get('parent_field'), False) or False
+                # Según la prioridad, se asigna
+                if config.get('priority', 'lead') == 'lead':
+                    value = lead_value if lead_value else parent_value
+                else:
+                    value = parent_value if parent_value else lead_value
+            else:
+                # Lógica por defecto para otros campos
+                lead_value = getattr(opportunity, config.get('lead_field'), False)
+                parent_value = parent_project and config.get('parent_field') and getattr(parent_project, config.get('parent_field'), False) or False
+                # Nueva lógica para prioridad estricta del lead
+                if config.get('priority') == 'strict_lead':
+                    value = lead_value  # Toma el valor del lead incluso si está vacío
+                    source = 'LEAD (forzado)'
+                    final_value = lead_value
+            
+                elif config.get('priority', 'lead') == 'lead':
+                    value = lead_value if lead_value else parent_value
+                    source = 'LEAD' if lead_value else 'PADRE (por vacío LEAD)'
+                    final_value = lead_value or parent_value
+                
+                else:
+                    value = parent_value if parent_value else lead_value
+                    source = 'PADRE' if parent_value else 'LEAD (por vacío PADRE)'
+                    final_value = parent_value or lead_value
+
+            # Log detallado
+            _logger.warning(
+                "\n| Campo Proyecto: %s"
+                "\n| Fuente: %s"
+                "\n| Valor LEAD (%s): %s"
+                "\n| Valor PADRE (%s): %s"
+                "\n| Valor FINAL asignado: %s"
+                "\n|----------------------------------",
+                proj_field.upper(),
+                source,
+                config.get('lead_field', 'N/A'),
+                format_value(lead_value),
+                config.get('parent_field', 'N/A'),
+                format_value(parent_value),
+                format_value(final_value)
+            )
+
+
+            
+            project[proj_field] = value
 
 
     @api.constrains('project_id', 'company_id')

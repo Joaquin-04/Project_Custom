@@ -14,8 +14,9 @@ class ProjectSequenceLog(models.Model):
     )
     sequence_number = fields.Char(
         string="Número de Obra Asignado",
-        required=True,
-        help="Número asignado por la secuencia."
+        required=False,
+        help="Número asignado por la secuencia.",
+        default="0"
     )
     user_id = fields.Many2one(
         'res.users', 

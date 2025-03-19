@@ -9,27 +9,37 @@ class StockPicking(models.Model):
     project_id = fields.Many2one(
         'project.project',
         string="Proyecto",
-        domain="[('company_id', 'in', allowed_company_ids)]"
+        domain="[('company_id', 'in', allowed_company_ids)]",
+        #compute="_compute_project_id",
+        readonly=False
     )
 
+    def _compute_project_id(self):
+        _logger.warning(f"**********************************************COMPUTE**********************************************")
+        for picking in self:
+            if picking.x_studio_nv_numero_de_obra_relacionada:
+                obra_nr = picking.x_studio_nv_numero_de_obra_relacionada
+                proyecto = self.env['project.project'].search([('obra_nr','=',obra_nr)])
+                _logger.warning(f"Proyecto {proyecto.name} asignado al remito {picking.name}")
+            else:
+                _logger.warning(f"No se a asignado asignado nada al remito {picking.name}")
+                picking.project_id = False
+
+
+    #Me sirve para los casos de remito creados con la reserva de materiales
     @api.model
     def create(self, vals):
         # Llamamos al método create original para crear el registro
         picking = super(StockPicking, self).create(vals)
 
-        # Buscamos la venta relacionada
-        sale_order = picking.sale_id 
-        if sale_order and sale_order.project_id:
+        _logger.warning(f"**********************************************CREATE PROYECTO**********************************************")
+        obra_nr = picking.x_studio_nv_numero_de_obra_relacionada
+        proyecto = self.env['project.project'].search([('obra_nr','=',obra_nr)])
+        _logger.warning(f"OBRA: {obra_nr}\n PROYECTO: {proyecto} ")
+        if proyecto: 
             # Asignamos el proyecto de la venta al remito
-            picking.project_id = sale_order.project_id
-            _logger.info(f"Proyecto {sale_order.project_id.name} asignado al remito {picking.name}")
-        
-        sale_order = picking.sale_stock_link_id.sale_order_id
-        if sale_order and sale_order.project_id:
-            # Asignamos el proyecto de la venta al remito
-            picking.project_id = sale_order.project_id
-            _logger.info(f"Proyecto {sale_order.project_id.name} asignado al remito {picking.name}")
-        
+            picking.project_id = proyecto.id
+            _logger.warning(f"Proyecto {proyecto.name} asignado al remito {picking.name}")
 
         return picking
 

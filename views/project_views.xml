@@ -27,6 +27,7 @@
                         <field name="obra_nr"/>
                         <field name="obra_padre_id"
                                options="{'no_create':True,'no_create_edit':True}"/>
+                        <field name="obra_padre_nr" invisible="1"/>
                         <field name="color_proyect"
                                options="{'no_create':True,'no_create_edit':True}"/>
                         <field name="estado_obra_proyect"

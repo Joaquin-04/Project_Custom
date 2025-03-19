@@ -37,6 +37,8 @@
         # Auditoria
         'views/project_sequence_log_views.xml',
         
+        'views/studio_extends.xml',
+        
         
     ],
     'installable': True,

@@ -1,0 +1,126 @@
+<odoo>
+    <record id="crm_lead_form_inherit_project_odoo_studio" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.project.odoo.studio</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="studio_customization.odoo_studio_crm_lead_26d33775-c1d2-4ad1-bb35-6df0bcfa0329"/>
+        <field name="priority" eval="181"/>
+        <field name="arch" type="xml">
+
+            <!--Campo de nombre de carga obra, invisible, sin requerido y solo lectura-->
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='x_studio_nv_nombre_de_carga_obra']" position="attributes">
+                <attribute name="invisible">1</attribute>
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+            <!--Campo x_studio_nv_numero_de_sp (NV Numero de obra padre ) sin requerido y solo lectura-->
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='x_studio_nv_numero_de_sp']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+            <!--Campo x_studio_nv_numero_de_obra_relacionada (NV Numero de obra relacionada ) sin requerido y solo lectura-->
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='x_studio_nv_numero_de_obra_relacionada']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+            
+            <!--Agregando mis campos de obra relacionada y obra padre -->
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='x_studio_nv_numero_de_sp']" position="after">
+                <field name="obra_padre_id"
+                       domain="[('company_id', '=', company_id)]"
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       required="stage_id == 41" />
+                
+                <field name="project_id"
+                       domain="[('company_id', '=', company_id)]"
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       readonly="1"/>
+            </xpath>
+
+            <!---->
+
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='x_studio_many2one_field_G5Z0F']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+            
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='x_studio_many2one_field_G5Z0F']" position="after">
+                <field name="project_ubi_id" 
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       required="stage_id == 47 or stage_id == 36 or stage_id == 41"/>
+            </xpath>
+
+
+            
+            
+
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='x_studio_nv_provincia']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+            
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='x_studio_nv_provincia']" position="after">
+                <field name="provincia_id" 
+                       options="{'no_create': True, 'no_create_edit': True}"/>
+            </xpath>
+
+
+
+
+
+
+            <xpath expr="//page[@name='studio_page_hWyP4']/group[@name='studio_group_hWyP4']/group[@name='studio_group_hWyP4_right']/field[@name='x_studio_nv_cartel']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            
+
+            
+            <xpath expr="//page[@name='studio_page_hWyP4']/group[@name='studio_group_hWyP4']/group[@name='studio_group_hWyP4_right']/field[@name='x_studio_nv_cartel']" position="after">
+                <field name="cartel_obra_id" 
+                       options="{'no_create': True, 'no_create_edit': True}"
+                       required="((stage_id == 47) or ((stage_id == 36) or (stage_id == 41)))"/>
+            </xpath>
+            
+            
+            
+                
+
+            <!--Campo x_studio_nv_tipo (NV Numero de obra relacionada ) sin requerido y solo lectura-->
+            <xpath expr="//group[@name='studio_group_hPu2f_left']/field[@name='x_studio_nv_tipo']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+
+            <xpath expr="//group[@name='studio_group_hPu2f_left']/field[@name='x_studio_nv_linea']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+
+            <xpath expr="//group[@name='studio_group_hPu2f_left']/field[@name='x_studio_nv_color_1']" position="attributes">
+                <attribute name="required">0</attribute>
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            
+
+            <xpath expr="//group[@name='studio_group_hPu2f_left']/field[@name='x_studio_nv_tipo']" position="before">
+                        
+                <field name="obratipo_proyect_id" 
+                       options="{'no_create': True, 'no_create_edit': True}"/>
+                
+                <field name="lnart_proyect_id" 
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                
+                <field name="color_proyect_id" 
+                       options="{'no_create': True, 'no_create_edit': True}"/>
+            </xpath>
+            
+
+        </field>
+    </record>
+</odoo>
