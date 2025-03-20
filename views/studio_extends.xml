@@ -15,14 +15,15 @@
 
             <!--Campo x_studio_nv_numero_de_sp (NV Numero de obra padre ) sin requerido y solo lectura-->
             <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='x_studio_nv_numero_de_sp']" position="attributes">
+                
                 <attribute name="required">0</attribute>
-                <attribute name="readonly">1</attribute>
+                <attribute name="readonly">0</attribute>
             </xpath>
 
             <!--Campo x_studio_nv_numero_de_obra_relacionada (NV Numero de obra relacionada ) sin requerido y solo lectura-->
             <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='x_studio_nv_numero_de_obra_relacionada']" position="attributes">
                 <attribute name="required">0</attribute>
-                <attribute name="readonly">1</attribute>
+                <attribute name="readonly">0</attribute>
             </xpath>
 
             
@@ -44,6 +45,7 @@
             <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='x_studio_many2one_field_G5Z0F']" position="attributes">
                 <attribute name="required">0</attribute>
                 <attribute name="readonly">1</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
 
             
@@ -60,6 +62,7 @@
             <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='x_studio_nv_provincia']" position="attributes">
                 <attribute name="required">0</attribute>
                 <attribute name="readonly">1</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
 
             
@@ -76,6 +79,7 @@
             <xpath expr="//page[@name='studio_page_hWyP4']/group[@name='studio_group_hWyP4']/group[@name='studio_group_hWyP4_right']/field[@name='x_studio_nv_cartel']" position="attributes">
                 <attribute name="required">0</attribute>
                 <attribute name="readonly">1</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
             
 
@@ -94,17 +98,20 @@
             <xpath expr="//group[@name='studio_group_hPu2f_left']/field[@name='x_studio_nv_tipo']" position="attributes">
                 <attribute name="required">0</attribute>
                 <attribute name="readonly">1</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
 
 
             <xpath expr="//group[@name='studio_group_hPu2f_left']/field[@name='x_studio_nv_linea']" position="attributes">
                 <attribute name="required">0</attribute>
                 <attribute name="readonly">1</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
 
             <xpath expr="//group[@name='studio_group_hPu2f_left']/field[@name='x_studio_nv_color_1']" position="attributes">
                 <attribute name="required">0</attribute>
                 <attribute name="readonly">1</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
             
 
