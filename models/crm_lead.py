@@ -5,6 +5,15 @@ import logging
 
 _logger = logging.getLogger(__name__)
 class CrmLead(models.Model):
+    """
+    Extensión del modelo CRM Lead para gestión especializada de proyectos de construcción
+    
+    Características clave:
+    - Vinculación con proyectos y subproyectos
+    - Asignación automática de responsables (vendedor, cotizador (no es para nada importante), jefe de obra)
+    - Georeferenciación mediante ubicaciones predefinidas
+    - Control de consistencia entre empresas y proyectos
+    """
     _inherit = 'crm.lead'
 
     # Campo 'name' sobreescrito con límite
@@ -152,6 +161,18 @@ class CrmLead(models.Model):
 
     @api.depends('user_id')
     def _compute_vendedor_id(self):
+        """
+        Lógica para asignación automática de vendedor:
+        1. Busca empleado vinculado al usuario del lead
+        2. Encuentra registro correspondiente en project.syusro
+        3. Asigna relación y registra en logs
+        
+        Dependencias:
+        - user_id (usuario asignado al lead)
+        
+        Excepciones:
+        - Fallo silencioso si no encuentra relación (asigna False)
+        """
         for lead in self:
             if lead.user_id:
                 # Buscar al empleado cuyo user_id coincide con el user del lead
@@ -237,6 +258,11 @@ class CrmLead(models.Model):
 
     @api.constrains('name')
     def _check_name_length(self):
+        """
+        Valida longitud máxima del nombre de obra
+        - Permite hasta 99 caracteres (incluyendo espacios)
+        - Lanza ValidationError con mensaje claro
+        """
         for record in self:
             if record.name and len(record.name.strip()) > 99:
                 raise ValidationError(_("Error: El nombre no puede superar 98 caracteres."))
@@ -244,7 +270,12 @@ class CrmLead(models.Model):
 
     @api.constrains('project_id', 'company_id')
     def _check_project_company(self):
-        """ Evita seleccionar un proyecto de otra empresa """
+        """
+        Garantiza consistencia entre compañías:
+        - Proyecto debe pertenecer a misma compañía que lead
+        - Previene asignación cruzada entre empresas
+        - Mensaje de error detallado con nombres afectados
+        """
         for lead in self:
             if lead.project_id and lead.company_id and lead.project_id.company_id != lead.company_id:
                 raise ValidationError(_(f"El proyecto seleccionado '{ lead.project_id.name }' pertenece a otra empresa: { lead.project_id.company_id.name }."))
@@ -254,6 +285,18 @@ class CrmLead(models.Model):
     ##################################################################################################################
 
     def write(self, vals):
+
+        """
+        Extensión del método write para:
+        - Sincronizar campos relacionados con proyectos
+        - Actualizar números de obra y SP(numero de obra padre) automáticamente
+        - Registrar cambios en logs para auditoría
+        
+        Comportamiento especial:
+        - Actualiza x_studio_nv_numero_de_obra_relacionada al cambiar project_id
+        - Actualiza x_studio_nv_numero_de_sp al cambiar obra_padre_id
+        - Limpia campos relacionados si se elimina proyecto
+        """
         _logger.warning("Write!!!")
         _logger.warning(f"valores: {vals}")
 
@@ -297,3 +340,50 @@ class CrmLead(models.Model):
 
 
 
+# ---------------------------------------------------------------------------------------
+# DOCUMENTACIÓN ADICIONAL
+# ---------------------------------------------------------------------------------------
+
+"""
+ESTRUCTURA DE DATOS PRINCIPAL:
+----------------------------------------------------------------------------------------
+1. Campos Relacionales:
+   - project_id: Proyecto principal vinculado
+   - obra_padre_id: Proyecto padre (jerarquía de obras)
+   - vendedor_id/cotizador_id/jefe_obra_id: Responsables técnicos
+
+2. Campos Geográficos:
+   - project_ubi_id: Ubicación principal
+   - cod_postal_proyect/ubi_area_proyect/ubi_code: Derivados de ubicación
+
+3. Campos de Clasificación:
+   - lnart_proyect_id: Línea de negocio
+   - obratipo_proyect_id: Tipo de obra
+   - color_proyect_id: Codificación por color
+
+LOGICA PRINCIPAL:
+----------------------------------------------------------------------------------------
+- Asignación Automática: Deriva responsables de usuarios vinculados
+- Sincronización en Tiempo Real: Actualiza campos relacionados al modificar proyectos
+- Validación Estricta: Mantiene integridad de datos empresariales
+
+CONSIDERACIONES TÉCNICAS:
+----------------------------------------------------------------------------------------
+1. Seguridad:
+   - Validación de compañía previene acceso cruzado
+   - Dominios en campos relacionales filtran por contexto
+
+2. Rendimiento:
+   - Métodos computados optimizados con búsquedas limitadas
+   - Logging detallado para diagnóstico de problemas
+
+3. Mantenibilidad:
+   - Estructura modular separando campos, cómputos y validaciones
+   - Nombres de campos descriptivos según convención NV_
+   
+OBSERVACIONES:
+----------------------------------------------------------------------------------------
+- Los campos x_studio_* son creados desde la interfaz Studio
+- project.syusro parece ser modelo personalizado para usuarios del sistema
+- La relación empleado-usuario se asume existente en modelo hr.employee
+"""

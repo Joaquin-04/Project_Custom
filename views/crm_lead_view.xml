@@ -7,14 +7,12 @@
         <field name="arch" type="xml">
 
             <xpath expr="//page[last()]" position="after" > <!-- Añade después de la última pestaña -->
-                <page string="Información de Obra" invisible="1">
+                <page string="Información de Obra" invisible="1"> <!--Invisible para luego ver si se estan cargando bien el vendedor y jefe de obra -->>
                     <group string="Datos Principales" col="2">
                         
                         <field name="vendedor_id" 
                                options="{'no_create': True, 'no_create_edit': True}"/>
                         
-                        <field name="cotizador_id" 
-                               options="{'no_create': True, 'no_create_edit': True}"/>
                         
                         <field name="jefe_obra_id" 
                                options="{'no_create': True, 'no_create_edit': True}"/>

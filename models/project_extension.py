@@ -8,6 +8,16 @@ _logger = logging.getLogger(__name__)
 
 
 class ProjectProject(models.Model):
+    """
+    Extensión del modelo Project para gestión especializada de obras
+    
+    Funcionalidades Clave:
+    - Numeración automática con secuencia configurable
+    - Campos técnicos para integración con otros módulos
+    - Sistema de estados y fechas clave
+    - Gestión de relaciones padre-hijo entre proyectos
+    - Auditoría detallada de creación/modificación
+    """
     _inherit = ['project.project']  # Correcto
 
     # Relaciones inversas
@@ -644,7 +654,6 @@ class ProjectProject(models.Model):
     
     @api.model
     def _name_search(self, name='', domain=None, operator='ilike', limit=100, order=None, name_get_uid=None):
-        """Búsqueda por 'name' o 'obra_nr' en campos Many2one."""
 
         if domain is None:  
             domain = []  # Si domain es None, lo inicializamos como una lista vacía
@@ -666,6 +675,22 @@ class ProjectProject(models.Model):
 
     @api.model
     def create(self, vals):
+        """
+        Sobreescritura del método create para:
+        1. Limpiar formatos de teléfono
+        2. Asignar compañía por defecto
+        3. Crear cuenta analítica asociada
+        4. Generar número de obra secuencial
+        5. Registrar auditoría detallada
+        
+        Flujo de Excepciones:
+        - ValidationError: Errores de validación de datos
+        - IntegrityError: Conflictos de base de datos
+        - Exception: Errores generales
+        
+        Registra en:
+        - project.sequence.log: Auditoría de numeración
+        """
         # Definir una función para limpiar los números de teléfono
         def limpiar_numero_telefono(numero):
             if numero:
@@ -777,6 +802,11 @@ class ProjectProject(models.Model):
 
 
     def write(self, vals):
+        """
+        Actualización de proyectos:
+        - Actualiza fecha de modificación de estado automáticamente
+        - Propaga cambios a registros relacionados
+        """
             # Si se está cambiando el estado de obra, se actualiza la fecha a la fecha actual.
             if 'estado_obra_proyect' in vals:
                 vals['obra_estd_fc_ulti_modi'] = fields.Date.context_today(self)

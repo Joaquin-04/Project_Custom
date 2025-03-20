@@ -6,6 +6,21 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class SaleOrderProjectWizard(models.TransientModel):
+    """
+    Wizard Transiente para gestión de proyectos en órdenes de venta
+    
+    Flujo Principal:
+    1. Usuario selecciona proyecto existente o crea nuevo
+    2. Valida consistencia de datos y relaciones empresariales
+    3. Crea proyecto nuevo con datos del lead si corresponde
+    4. Vincula proyecto a orden de venta y oportunidad relacionada
+    5. Confirma automáticamente la orden de venta
+    
+    Campos Clave:
+    - create_new: Bandera para creación de nuevos proyectos
+    - obra_padre_id: Jerarquía de proyectos
+    - LEAD_PARENT_SELECTION_MAPPING: Reglas de prioridad para campos
+    """
     _name = 'sale.order.project.wizard'
     _description = 'Seleccionar o Crear Proyecto'
 
@@ -85,6 +100,20 @@ class SaleOrderProjectWizard(models.TransientModel):
     # Mapeo para los campos en los que se requiere elegir entre el valor del lead y, en su defecto, del proyecto padre.
     # Por ejemplo, para el vendedor queremos que siempre se use el valor del lead.
     LEAD_PARENT_SELECTION_MAPPING = {
+        """
+        Reglas de prioridad para campos:
+        - 'lead': Valor del lead tiene prioridad absoluta
+        - 'padre': Usar valor del proyecto padre si existe
+        - 'strict_lead': Campo obligatorio desde lead
+        
+        Estructura por campo:
+        - lead_field: Campo origen en lead
+        - parent_field: Campo origen en proyecto padre (opcional)
+        - priority: Regla de prioridad
+        """
+
+
+
         'color_proyect': {
             'lead_field': 'color_proyect_id',  # Campo en el CRM lead
             'parent_field': 'color_proyect',  # (Opcional) Si en algún caso deseas fallback al padre
@@ -177,7 +206,18 @@ class SaleOrderProjectWizard(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        """Obtiene valores por defecto, como el nombre del lead si proviene de uno"""
+        """
+        Inicialización inteligente del wizard:
+        1. Obtiene orden de venta del contexto
+        2. Precarga proyecto relacionado si existe
+        3. Suggestion de nombre desde lead
+        
+        Parámetros:
+        - fields_list: Campos a inicializar (manejado por herencia)
+        
+        Return:
+        - Diccionario con valores iniciales
+        """
         res = super(SaleOrderProjectWizard, self).default_get(fields_list)
         sale_order = self.env['sale.order'].browse(self.env.context.get('default_sale_order_id'))
 
@@ -209,7 +249,19 @@ class SaleOrderProjectWizard(models.TransientModel):
     
 
     def action_apply(self):
-        """ Aplica la selección del proyecto o crea uno nuevo con validaciones"""
+        """
+        Acción principal del wizard:
+        1. Crea proyecto nuevo o selecciona existente
+        2. Copia datos desde oportunidad
+        3. Aplica reglas de mapeo lead/padre
+        4. Vincula proyecto a orden y oportunidad
+        5. Confirma orden de venta automáticamente
+        
+        Flujo de Excepciones:
+        - Registra errores en modelo dedicado (project.sequence.log)
+        - Log detallado para auditoría
+        - Rollback automático de transacción en fallos
+        """
         try:
             if self.create_new:
                 if not self.new_project_name:
@@ -287,7 +339,17 @@ class SaleOrderProjectWizard(models.TransientModel):
     
 
     def _copy_fields_from_opportunity(self, project, opportunity,fields_to_include):
-        """Copia campos desde el lead al proyecto usando el mapeo definido"""
+        """
+        Copia masiva de campos desde oportunidad a proyecto:
+        - Maneja tipos de campos (M2O, M2M, escalares)
+        - Omite campos vacíos
+        - Registra errores por campo sin bloquear proceso
+        
+        Parámetros:
+        - project: Objeto proyecto destino
+        - opportunity: Objeto lead/origen
+        - fields_to_include: Lista de campos a procesar
+        """
         for project_field, lead_field in self.LEAD_TO_PROJECT_MAPPING.items():
             try:
                 if project_field not in fields_to_include:
@@ -326,6 +388,16 @@ class SaleOrderProjectWizard(models.TransientModel):
         
         Para el caso del teléfono (campo 'telefono_fijo'), se prioriza el valor del lead; si está vacío,
         se usa el valor del cliente (partner_id.phone).
+        
+        Lógica avanzada de prioridad de campos:
+        1. Determina fuente de datos (lead/padre)
+        2. Aplica reglas de prioridad configuradas
+        3. Genera logs detallados de asignación
+        
+        Casos Especiales:
+        - Campos telefónicos con fallback a partner
+        - Campos obligatorios (strict_lead)
+        - Formateo de valores para logs
         """
         # Función para formatear valores
         def format_value(value):
@@ -398,6 +470,11 @@ class SaleOrderProjectWizard(models.TransientModel):
 
     @api.constrains('project_id', 'company_id')
     def _check_project_company(self):
+        """
+        Consistencia empresarial:
+        - Proyecto y orden deben pertenecer a misma compañía
+        - Previene cruce de datos entre organizaciones
+        """
         for record in self:
             if record.project_id and record.company_id != record.project_id.company_id:
                 raise ValidationError(_(
@@ -408,3 +485,73 @@ class SaleOrderProjectWizard(models.TransientModel):
 
 
 
+
+
+# ---------------------------------------------------------------------------------------
+# DOCUMENTACIÓN ADICIONAL
+# ---------------------------------------------------------------------------------------
+
+"""
+ARQUITECTURA DE DATOS:
+----------------------------------------------------------------------------------------
+1. Relaciones Clave:
+   - sale_order_id: Vinculación con documento comercial
+   - project_id: Proyecto existente seleccionado
+   - obra_padre_id: Jerarquía de proyectos
+
+2. Mapeos de Campos:
+   - LEAD_TO_PROJECT_MAPPING: Correspondencia directa 1:1
+   - LEAD_PARENT_SELECTION_MAPPING: Lógica condicional lead/padre
+
+3. Campos Técnicos:
+   - create_new: Bandera de creación/uso existente
+   - new_project_name: Nombre para nuevos proyectos
+
+FLUJOS DE TRABAJO:
+----------------------------------------------------------------------------------------
+1. Creación Nuevo Proyecto:
+   - Validación nombre
+   - Copia campos desde lead
+   - Aplica herencia desde obra padre
+   - Genera números de obra
+
+2. Uso Proyecto Existente:
+   - Validación compañía
+   - Actualización de campos relacionados
+
+REGISTRO Y AUDITORÍA:
+----------------------------------------------------------------------------------------
+- Logging detallado en cada paso crítico
+- Modelo project.sequence.log para errores
+- Trazas en _logger con formato estructurado
+
+OBSERVACIONES TÉCNICAS:
+----------------------------------------------------------------------------------------
+1. Dependencias:
+   - Campos x_studio_* requieren módulos Studio
+   - Modelos project.* son personalizaciones específicas
+
+2. Supuestos:
+   - Existencia de modelo project.sequence.log
+   - Campos técnicos en sale.order (project_id, opportunity_id)
+   - Relación sale.order <-> crm.lead mediante opportunity_id
+
+3. Seguridad:
+   - Validación de compañía en múltiples niveles
+   - Readonly en campos críticos
+   - Manejo seguro de IDs mediante browse()
+
+4. Optimización:
+   - Queries limitadas con search(..., limit=1)
+   - Bulk operations en métodos compute
+   - Validación por lotes (@api.constrains)
+
+BUENAS PRÁCTICAS IMPLEMENTADAS:
+----------------------------------------------------------------------------------------
+- Separación clara entre lógica de negocio y UI
+- Métodos cortos con responsabilidad única
+- Manejo adecuado de excepciones
+- Logs informativos para diagnóstico
+- Validación temprana de datos
+- Uso apropiado de @api.constrains
+"""
