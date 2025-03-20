@@ -807,10 +807,10 @@ class ProjectProject(models.Model):
         - Actualiza fecha de modificación de estado automáticamente
         - Propaga cambios a registros relacionados
         """
-            # Si se está cambiando el estado de obra, se actualiza la fecha a la fecha actual.
-            if 'estado_obra_proyect' in vals:
-                vals['obra_estd_fc_ulti_modi'] = fields.Date.context_today(self)
-            return super(ProjectProject, self).write(vals)
+        # Si se está cambiando el estado de obra, se actualiza la fecha a la fecha actual.
+        if 'estado_obra_proyect' in vals:
+            vals['obra_estd_fc_ulti_modi'] = fields.Date.context_today(self)
+        return super(ProjectProject, self).write(vals)
 
 
 
