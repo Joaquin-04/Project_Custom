@@ -6,8 +6,8 @@
         <field name="priority" eval="181"/>
         <field name="arch" type="xml">
 
-            <xpath expr="//page[last()]" position="after" invisible="1"> <!-- Añade después de la última pestaña -->
-                <page string="Información de Obra" >
+            <xpath expr="//page[last()]" position="after" > <!-- Añade después de la última pestaña -->
+                <page string="Información de Obra" invisible="1">
                     <group string="Datos Principales" col="2">
                         
                         <field name="vendedor_id" 
