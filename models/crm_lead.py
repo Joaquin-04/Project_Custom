@@ -27,14 +27,12 @@ class CrmLead(models.Model):
     project_id = fields.Many2one(
         'project.project',
         string="NV Numero de obra relacionada",
-        domain="[('company_id', '=', company_id)]",
         tracking=True
         )
 
     obra_padre_id = fields.Many2one(
         'project.project',
         string="NV Numero de obra padre",
-        domain="[('company_id', '=', company_id)]",  # Filtra por compañías permitidas
         no_create=True,
         size=29,
         tracking=True,
@@ -268,18 +266,20 @@ class CrmLead(models.Model):
                 raise ValidationError(_("Error: El nombre no puede superar 98 caracteres."))
 
 
+    """
     @api.constrains('project_id', 'company_id')
     def _check_project_company(self):
-        """
-        Garantiza consistencia entre compañías:
-        - Proyecto debe pertenecer a misma compañía que lead
-        - Previene asignación cruzada entre empresas
-        - Mensaje de error detallado con nombres afectados
-        """
+        
+        #Garantiza consistencia entre compañías:
+        #- Proyecto debe pertenecer a misma compañía que lead
+        #- Previene asignación cruzada entre empresas
+        #- Mensaje de error detallado con nombres afectados
+        
         for lead in self:
             if lead.project_id and lead.company_id and lead.project_id.company_id != lead.company_id:
                 raise ValidationError(_(f"El proyecto seleccionado '{ lead.project_id.name }' pertenece a otra empresa: { lead.project_id.company_id.name }."))
 
+    """
     ##################################################################################################################
     #Funciones bases de odoo
     ##################################################################################################################
