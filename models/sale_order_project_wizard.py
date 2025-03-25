@@ -468,19 +468,19 @@ class SaleOrderProjectWizard(models.TransientModel):
             project[proj_field] = value
 
 
+    """
     @api.constrains('project_id', 'company_id')
     def _check_project_company(self):
-        """
-        Consistencia empresarial:
-        - Proyecto y orden deben pertenecer a misma compañía
-        - Previene cruce de datos entre organizaciones
-        """
+        #Consistencia empresarial:
+        #- Proyecto y orden deben pertenecer a misma compañía
+        #- Previene cruce de datos entre organizaciones
+        
         for record in self:
             if record.project_id and record.company_id != record.project_id.company_id:
                 raise ValidationError(_(
                     f"El proyecto seleccionado '{record.project_id.name}' pertenece a otra empresa: {record.project_id.company_id.name}."
                 ))
-
+    """
 
 
 
