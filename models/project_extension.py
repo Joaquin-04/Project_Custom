@@ -82,7 +82,6 @@ class ProjectProject(models.Model):
     obra_padre_id = fields.Many2one(
         'project.project',
         string="Obra Padre",
-        domain="[('company_id', '=', company_id)]",  # Filtra por compañías permitidas
         no_create=True,
         size=29,
         tracking=True,
