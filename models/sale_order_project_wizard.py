@@ -59,7 +59,7 @@ class SaleOrderProjectWizard(models.TransientModel):
         'cod_postal_proyect',
         'ubi_area_proyect',
         'ubi_code',
-        'x_studio_celular_1'
+        'x_studio_celular_1',
         'x_studio_telefono_fijo',
         'phone_mobile_search',#fax1
         'estado_obra_proyect_id',
@@ -500,11 +500,14 @@ class SaleOrderProjectWizard(models.TransientModel):
                     f"El proyecto seleccionado '{record.project_id.name}' pertenece a otra empresa: {record.project_id.company_id.name}."
                 ))
     """
+<<<<<<< HEAD
 
     
 
 
     
+=======
+>>>>>>> 859c203449c2a2eb02eb38f9ce903a2c713d8633
 
 
 
