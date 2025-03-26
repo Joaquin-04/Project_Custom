@@ -58,7 +58,7 @@ class SaleOrderProjectWizard(models.TransientModel):
         'cod_postal_proyect',
         'ubi_area_proyect',
         'ubi_code',
-        'x_studio_celular_1'
+        'x_studio_celular_1',
         'x_studio_telefono_fijo',
         'phone_mobile_search',#fax1
         'estado_obra_proyect_id',
