@@ -99,21 +99,18 @@ class SaleOrderProjectWizard(models.TransientModel):
 
     # Mapeo para los campos en los que se requiere elegir entre el valor del lead y, en su defecto, del proyecto padre.
     # Por ejemplo, para el vendedor queremos que siempre se use el valor del lead.
+    """
+    Reglas de prioridad para campos:
+    - 'lead': Valor del lead tiene prioridad absoluta
+    - 'padre': Usar valor del proyecto padre si existe
+    - 'strict_lead': Campo obligatorio desde lead
+    
+    Estructura por campo:
+    - lead_field: Campo origen en lead
+    - parent_field: Campo origen en proyecto padre (opcional)
+    - priority: Regla de prioridad
+    """
     LEAD_PARENT_SELECTION_MAPPING = {
-        """
-        Reglas de prioridad para campos:
-        - 'lead': Valor del lead tiene prioridad absoluta
-        - 'padre': Usar valor del proyecto padre si existe
-        - 'strict_lead': Campo obligatorio desde lead
-        
-        Estructura por campo:
-        - lead_field: Campo origen en lead
-        - parent_field: Campo origen en proyecto padre (opcional)
-        - priority: Regla de prioridad
-        """
-
-
-
         'color_proyect': {
             'lead_field': 'color_proyect_id',  # Campo en el CRM lead
             'parent_field': 'color_proyect',  # (Opcional) Si en algún caso deseas fallback al padre
