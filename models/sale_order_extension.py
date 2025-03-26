@@ -98,13 +98,14 @@ class SaleOrder(models.Model):
     
 
 
+    """
     @api.constrains('project_id', 'company_id')
     def _check_project_company(self):
-        """ Evita seleccionar un proyecto de otra empresa """
+        #Evita seleccionar un proyecto de otra empresa
         for order in self:
             if order.project_id and order.company_id and order.project_id.company_id != order.company_id:
                 raise ValidationError(_(f"El proyecto seleccionado '{ order.project_id.name }' pertenece a otra empresa: { order.project_id.company_id.name }."))
-
+    """
 
     
     

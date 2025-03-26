@@ -1,5 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError,ValidationError
+import re  # Agregar al inicio del archivo
 
 import logging
 
@@ -99,21 +100,18 @@ class SaleOrderProjectWizard(models.TransientModel):
 
     # Mapeo para los campos en los que se requiere elegir entre el valor del lead y, en su defecto, del proyecto padre.
     # Por ejemplo, para el vendedor queremos que siempre se use el valor del lead.
+    """
+    Reglas de prioridad para campos:
+    - 'lead': Valor del lead tiene prioridad absoluta
+    - 'padre': Usar valor del proyecto padre si existe
+    - 'strict_lead': Campo obligatorio desde lead
+    
+    Estructura por campo:
+    - lead_field: Campo origen en lead
+    - parent_field: Campo origen en proyecto padre (opcional)
+    - priority: Regla de prioridad
+    """
     LEAD_PARENT_SELECTION_MAPPING = {
-        """
-        Reglas de prioridad para campos:
-        - 'lead': Valor del lead tiene prioridad absoluta
-        - 'padre': Usar valor del proyecto padre si existe
-        - 'strict_lead': Campo obligatorio desde lead
-        
-        Estructura por campo:
-        - lead_field: Campo origen en lead
-        - parent_field: Campo origen en proyecto padre (opcional)
-        - priority: Regla de prioridad
-        """
-
-
-
         'color_proyect': {
             'lead_field': 'color_proyect_id',  # Campo en el CRM lead
             'parent_field': 'color_proyect',  # (Opcional) Si en algún caso deseas fallback al padre
@@ -374,7 +372,15 @@ class SaleOrderProjectWizard(models.TransientModel):
                 _logger.error(f"Error copiando {lead_field} a {project_field}: {str(e)}")
                 continue
 
-    
+
+
+    # Dentro de la clase SaleOrderProjectWizard
+    def _sanitize_phone(self, value):
+        """Remueve todos los caracteres no numéricos de un string."""
+        if value and isinstance(value, str):
+            return re.sub(r'[^\d]', '', value)
+        return value
+        
 
 
     def _apply_lead_vs_parent_field(self, project, opportunity, field_mapping):
@@ -399,6 +405,11 @@ class SaleOrderProjectWizard(models.TransientModel):
         - Campos obligatorios (strict_lead)
         - Formateo de valores para logs
         """
+
+        # Justo antes de asignar el valor al proyecto:
+        
+        
+        
         # Función para formatear valores
         def format_value(value):
             if isinstance(value, models.BaseModel):
@@ -411,7 +422,12 @@ class SaleOrderProjectWizard(models.TransientModel):
 
         
         parent_project = project.obra_padre_id
+        _logger.warning(f"proyecto {project.name} \n padre {parent_project.name}")
+        
         for proj_field, config in field_mapping.items():
+            # Sanitizar campos telefónicos (NUEVO CÓDIGO)
+            
+                
             # Caso especial para el campo teléfono
             if proj_field == 'celular_1':
                 # Intentar obtener el valor del lead
@@ -427,6 +443,7 @@ class SaleOrderProjectWizard(models.TransientModel):
                 else:
                     value = parent_value if parent_value else lead_value
             else:
+                
                 # Lógica por defecto para otros campos
                 lead_value = getattr(opportunity, config.get('lead_field'), False)
                 parent_value = parent_project and config.get('parent_field') and getattr(parent_project, config.get('parent_field'), False) or False
@@ -464,23 +481,30 @@ class SaleOrderProjectWizard(models.TransientModel):
             )
 
 
-            
+            if proj_field in ['celular_1', 'telefono_fijo', 'fax_1', 'fax_2']:
+                value = self._sanitize_phone(value)
+                
             project[proj_field] = value
 
 
+    """
     @api.constrains('project_id', 'company_id')
     def _check_project_company(self):
-        """
-        Consistencia empresarial:
-        - Proyecto y orden deben pertenecer a misma compañía
-        - Previene cruce de datos entre organizaciones
-        """
+        #Consistencia empresarial:
+        #- Proyecto y orden deben pertenecer a misma compañía
+        #- Previene cruce de datos entre organizaciones
+        
         for record in self:
             if record.project_id and record.company_id != record.project_id.company_id:
                 raise ValidationError(_(
                     f"El proyecto seleccionado '{record.project_id.name}' pertenece a otra empresa: {record.project_id.company_id.name}."
                 ))
+    """
 
+    
+
+
+    
 
 
 

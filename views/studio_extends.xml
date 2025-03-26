@@ -30,12 +30,10 @@
             <!--Agregando mis campos de obra relacionada y obra padre -->
             <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='x_studio_nv_numero_de_sp']" position="after">
                 <field name="obra_padre_id"
-                       domain="[('company_id', '=', company_id)]"
                        options="{'no_create': True, 'no_create_edit': True}"
                        required="stage_id == 41" />
                 
                 <field name="project_id"
-                       domain="[('company_id', '=', company_id)]"
                        options="{'no_create': True, 'no_create_edit': True}"
                        />
             </xpath>

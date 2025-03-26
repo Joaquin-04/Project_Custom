@@ -82,7 +82,6 @@ class ProjectProject(models.Model):
     obra_padre_id = fields.Many2one(
         'project.project',
         string="Obra Padre",
-        domain="[('company_id', '=', company_id)]",  # Filtra por compañías permitidas
         no_create=True,
         size=29,
         tracking=True,
@@ -651,7 +650,8 @@ class ProjectProject(models.Model):
     # --------------------------------------------------------------------------
     # FUNCIONES BASE DE ODOO
     # --------------------------------------------------------------------------
-    
+
+    """
     @api.model
     def _name_search(self, name='', domain=None, operator='ilike', limit=100, order=None, name_get_uid=None):
 
@@ -667,6 +667,31 @@ class ProjectProject(models.Model):
         rtn = self._search(domain, limit=limit, order=order)
         #_logger.warning(f"rtn: {rtn}")
         return rtn
+
+    """
+
+    @api.model
+    def _name_search(self, name='', domain=None, operator='ilike', limit=100, order=None, name_get_uid=None):
+        if domain is None:  
+            domain = []  # Si domain es None, lo inicializamos como una lista vacía
+    
+        if name:
+            # Agregar condiciones de búsqueda (obra_nr o name)
+            domain = ['|', ('obra_nr', operator, name), ('name', operator, name)] + domain
+    
+        # **Forzar la búsqueda sin restricciones de compañía**
+        domain = [('company_id', 'in', self.env['res.company'].search([]).ids)] + domain
+    
+        # Registrar en logs para depuración
+        _logger.warning(f"*****************************  _name_search ****************************")
+        _logger.warning(f"name: {name} \ndomain {domain} \noperator: {operator} \nlimit: {limit} \norder: {order} \nname_get_uid: {name_get_uid}")
+        
+        # Realizar la búsqueda con el dominio actualizado
+        rtn = self.with_context(allowed_company_ids=self.env['res.company'].search([]).ids)._search(domain, limit=limit, order=order)
+        
+        _logger.warning(f"rtn: {rtn}")
+        return rtn
+
         
 
     
@@ -753,6 +778,7 @@ class ProjectProject(models.Model):
             }
             self.env['project.sequence.log'].sudo().create(audit_vals)
 
+            
             return record
 
         except ValidationError as ve:
