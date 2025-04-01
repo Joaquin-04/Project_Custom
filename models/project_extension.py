@@ -475,8 +475,10 @@ class ProjectProject(models.Model):
             if project.create_date:
                 # Convertimos el create_date (datetime) a date
                 project.fecha_aprobacion_presupuesto = fields.Date.from_string(project.create_date)
+                project.obra_estd_fc_ulti_modi = fields.Date.from_string(project.create_date)
             else:
                 project.fecha_aprobacion_presupuesto = False
+                project.obra_estd_fc_ulti_modi = False
 
     
 
@@ -836,6 +838,11 @@ class ProjectProject(models.Model):
         # Si se está cambiando el estado de obra, se actualiza la fecha a la fecha actual.
         if 'estado_obra_proyect' in vals:
             vals['obra_estd_fc_ulti_modi'] = fields.Date.context_today(self)
+
+        
+        
+
+        
         return super(ProjectProject, self).write(vals)
 
 

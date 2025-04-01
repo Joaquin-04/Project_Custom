@@ -196,8 +196,14 @@ class SaleOrderProjectWizard(models.TransientModel):
             'parent_field': 'kg_perfileria',  # (Opcional) Si en algún caso deseas fallback al padre
             'priority': 'strict_lead'   # Nueva prioridad para campos obligatorios desde el lead
         },
+
         
     }
+
+
+    
+
+
 
 
 
@@ -259,6 +265,14 @@ class SaleOrderProjectWizard(models.TransientModel):
         - Log detallado para auditoría
         - Rollback automático de transacción en fallos
         """
+
+        
+       
+        
+
+
+
+        
         try:
             if self.create_new:
                 if not self.new_project_name:

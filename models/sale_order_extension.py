@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -17,6 +17,17 @@ class SaleOrder(models.Model):
         string="Almacén",
         tracking=True
     )
+
+    CAMPOS_OBLIGATORIOS = {
+        #'x_studio_nv_nombre_de_carga_obra': "NV Nombre de carga obra",
+        'obratipo_proyect_id': "NV Tipo",
+        'lnart_proyect_id': "NV Línea",
+        'color_proyect_id': "NV Color",
+        'x_studio_nv_codigo_plus': "NV Código Plus",
+        'x_studio_nv_direccion': "NV Dirección",
+        'x_studio_nv_fecha_probable_de_entrega_de_obra': "NV Fecha probable de entrega de obra",
+        'cartel_obra_id': "NV Cartel",
+    }
 
     @api.model
     def default_get(self, fields_list):
@@ -113,6 +124,17 @@ class SaleOrder(models.Model):
     def action_confirm(self):
         """ Antes de confirmar la venta, abre un wizard para seleccionar o crear un proyecto """
 
+        campos_faltantes = []
+        for campo, descripcion in self.CAMPOS_OBLIGATORIOS.items():
+            if not self.opportunity_id[campo]:  
+                campos_faltantes.append(f"⛔ {descripcion}")  # Agrega el icono rojo para mayor visibilidad
+        
+        if campos_faltantes:
+            raise UserError("⚠️ Campos Obligatorios para el PROYECTO Vacíos en el Lead ⚠️\n\n"
+                            "Los siguientes campos son obligatorios y están vacíos en el Lead:\n"
+                            + "\n".join(campos_faltantes))
+
+        
         if self.studio_almacen.id == 10:
             proyecto = self.env['project.project'].search([('name', '=', 'Gremio')], limit=1)
             _logger.warning(f"Buscando el proyecto: {proyecto}")
