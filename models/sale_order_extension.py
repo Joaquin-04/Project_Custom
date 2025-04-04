@@ -124,15 +124,16 @@ class SaleOrder(models.Model):
     def action_confirm(self):
         """ Antes de confirmar la venta, abre un wizard para seleccionar o crear un proyecto """
 
-        campos_faltantes = []
-        for campo, descripcion in self.CAMPOS_OBLIGATORIOS.items():
-            if not self.opportunity_id[campo]:  
-                campos_faltantes.append(f"⛔ {descripcion}")  # Agrega el icono rojo para mayor visibilidad
-        
-        if campos_faltantes:
-            raise UserError("⚠️ Campos Obligatorios para el PROYECTO Vacíos en el Lead ⚠️\n\n"
-                            "Los siguientes campos son obligatorios y están vacíos en el Lead:\n"
-                            + "\n".join(campos_faltantes))
+        if self.opportunity_id:
+            campos_faltantes = []
+            for campo, descripcion in self.CAMPOS_OBLIGATORIOS.items():
+                if not self.opportunity_id[campo]:  
+                    campos_faltantes.append(f"⛔ {descripcion}")  # Agrega el icono rojo para mayor visibilidad
+            
+            if campos_faltantes:
+                raise UserError("⚠️ Campos Obligatorios para el PROYECTO Vacíos en el Lead ⚠️\n\n"
+                                "Los siguientes campos son obligatorios y están vacíos en el Lead:\n"
+                                + "\n".join(campos_faltantes))
 
         
         if self.studio_almacen.id == 10:
