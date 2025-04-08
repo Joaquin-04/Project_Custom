@@ -593,41 +593,13 @@ class ProjectProject(models.Model):
     
     # 2. Campos que SIEMPRE se heredarán (aunque sean computados/relacionados)
     FIELDS_TO_INCLUDE = [
-        'color_proyect',
-        'estado_obra_proyect',
-        'obra_estd_fc_ulti_modi',
-        'lnart_proyect',
-        'obratipo_proyect',
         'obratipo_ubi',
         'cod_postal_proyect',
         'ubi_area_proyect',
-        'nombre_carga_obra',
         'direccion',
-        'celular_1',
-        'telefono_fijo',
-        'fax_1',
-        'fax_2',
-        'tiempo_proyectado',
-        'observaciones',
         'codigo_plus',
-        'fecha_pactada_entrega',
-        'fecha_renegociada_entrega',
-        'obra_vend_cd',
-        'obra_jefe_cd',
-        'obra_tec_cd',
-        'obra_capa_cd',
-        'cartel_obra_id ',
-        'tiene_colocacion',
-        'empresa_origen_cd',
-        'obra_ref_fisc_cd',
-        'extra_observaciones',
         'provincia_id',
         'pais_cd',
-        'kg_perfileria',
-        'obra_cmpl',
-        'obra_ind_cmpl',
-        'obra_obs',
-        'obra_crc'
     ]
     """Hereda automáticamente los valores del proyecto padre al seleccionarlo."""
     
@@ -636,9 +608,6 @@ class ProjectProject(models.Model):
         if self.obra_padre_id:
             padre = self.obra_padre_id
             for field_name in self._fields:
-                # Condiciones para copiar el campo:
-                # - Está en FIELDS_TO_INCLUDE, O
-                # - No está excluido y no es computado/relacionado
                 if (
                     field_name in self.FIELDS_TO_INCLUDE 
                     and (
@@ -646,8 +615,15 @@ class ProjectProject(models.Model):
                         and not self._fields[field_name].related
                     )
                 ):
-                    _logger.warning(f"campo a copiar: {field_name}")
-                    self[field_name] = padre[field_name]
+                    valor = padre[field_name]
+                    # Validación para el campo tiene_colocacion
+                    if field_name == 'tiene_colocacion':
+                        if valor == 'S':
+                            valor = 'si'
+                        elif valor == 'N':
+                            valor = 'no'
+                    self[field_name] = valor
+
 
     # --------------------------------------------------------------------------
     # FUNCIONES BASE DE ODOO
@@ -844,8 +820,6 @@ class ProjectProject(models.Model):
 
         
         return super(ProjectProject, self).write(vals)
-
-
 
 
 
