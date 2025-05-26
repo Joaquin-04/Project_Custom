@@ -622,7 +622,9 @@ class ProjectProject(models.Model):
                             valor = 'si'
                         elif valor == 'N':
                             valor = 'no'
-                    self[field_name] = valor
+
+                    if not self[field_name] :
+                        self[field_name] = valor
 
 
     # --------------------------------------------------------------------------
