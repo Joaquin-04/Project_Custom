@@ -26,7 +26,8 @@
                     <group string="Información de Obra">
                         <field name="obra_nr"/>
                         <field name="obra_padre_id"
-                               options="{'no_create':True,'no_create_edit':True}"/>
+                               options="{'no_create':True,'no_create_edit':True}"
+                               domain="[('obra_padre_id', '=', False)]"/>  <!-- Dominio corregido -->
                         <field name="obra_padre_nr" invisible="1"/>
                         <field name="color_proyect"
                                options="{'no_create':True,'no_create_edit':True}"/>

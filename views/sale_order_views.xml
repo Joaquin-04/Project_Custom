@@ -5,11 +5,25 @@
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="priority" eval="161"/>
         <field name="arch" type="xml">
-            <xpath expr="//sheet//group[2]" position="after">
-            <group name="proyecto_obra">
-                <field name="project_id" invisible="1" string="Proyecto:" options="{'no_create': True, 'no_create_edit': True}" domain="[('company_id','=',company_id)]"/>
-            </group>
-        </xpath>
+            <xpath expr="//header" position="inside">
+                <!--
+                <button name="action_open_project_wizard"
+                        string="Crear Proyecto"
+                        type="object"
+                        class="oe_highlight"
+                        invisible= "project_id != False and state not in ['sale', 'done']"/>
+                -->
+            </xpath>
+            <!--
+            <xpath expr="//field[@name='x_studio_nv_numero_de_obra_relacionada']" position="after">
+                    <field name="company_id" invisible="1"/>
+                    <field name="project_id" 
+                        string="Proyecto" 
+                        options="{'no_create':True,'no_create_edit':True}" 
+                        domain="[('company_id', '=',company_id)]"
+                        insivible="1"/>
+            </xpath>
+            -->
         </field>
     </record>
 </odoo>

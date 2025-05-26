@@ -1,7 +1,6 @@
 from . import project_extension
 from . import res_config_settings
 from . import sale_order_extension
-from . import stock_picking_extension
 from . import crm_lead
 from . import sale_order_project_wizard
 from . import project_color
@@ -14,3 +13,4 @@ from . import syusro
 from . import project_cartel_obra
 from . import project_sequence_log
 from . import change_obra_nr_wizard
+from . import stock_picking_extension
