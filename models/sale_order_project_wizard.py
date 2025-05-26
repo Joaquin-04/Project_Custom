@@ -265,14 +265,7 @@ class SaleOrderProjectWizard(models.TransientModel):
         - Log detallado para auditoría
         - Rollback automático de transacción en fallos
         """
-
-        
-       
-        
-
-
-
-        
+     
         try:
             if self.create_new:
                 if not self.new_project_name:

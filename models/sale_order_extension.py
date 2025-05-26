@@ -44,49 +44,6 @@ class SaleOrder(models.Model):
 
 
     
-    def write(self, vals):
-        _logger.warning("Write!!!")
-        _logger.warning(f"valores: {vals}")
-        
-        # Ejecutar primero la escritura normal para tener los últimos valores
-        result = super(SaleOrder, self).write(vals)
-        
-        if 'project_id' in vals:
-            project = None
-            if vals['project_id']:
-                # Se ha asignado un proyecto, obtenemos su información
-                project = self.env['project.project'].browse(vals['project_id'])
-                
-                # Actualizar reservas de material
-                for reservation in self.material_reservation_ids:
-                    reservation.stage_id = False
-                
-                # Actualizar campos personalizados
-                new_vals = {}
-                if project.obra_nr:
-                    new_vals['x_studio_nv_numero_de_obra_relacionada'] = project.obra_nr
-                else:
-                    new_vals['x_studio_nv_numero_de_obra_relacionada'] = False
-                
-                if project.obra_padre_id:
-                    new_vals['x_studio_nv_numero_de_obra_padre'] = project.obra_padre_id.obra_nr
-                else:
-                    new_vals['x_studio_nv_numero_de_obra_padre'] = False
-                
-                self.write(new_vals)  # Actualizar campos sin entrar en recursión
-                
-                # Actualizar distribución analítica después de confirmar cambios
-                self._update_analytic_distribution()
-            else:
-                # Limpiar distribución analítica si se quita el proyecto
-                self._update_analytic_distribution(reset=True)
-                # Limpiar campos si se quita el proyecto
-                self.write({
-                    'x_studio_nv_numero_de_obra_relacionada': 0,
-                    'x_studio_nv_numero_de_obra_padre': 0,
-                })
-        
-        return result
 
 
     def _update_analytic_distribution(self,reset=False):

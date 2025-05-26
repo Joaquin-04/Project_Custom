@@ -8,7 +8,7 @@
         'sale',
         'purchase',
         'stock',
-        'material_reservation',
+        #'material_reservation',
     ],
     'data': [
         'security/groups.xml',
