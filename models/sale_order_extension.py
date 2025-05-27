@@ -159,8 +159,8 @@ class SaleOrder(models.Model):
         """Confirmación automática con creación de proyecto si no existe"""
         
 
-        if self.opportunity_id.stage_id.id != 41:
-            raise UserError("Primero ponga el lead en el estado 1401")
+        if self.opportunity_id.stage_id.id not in [41,36,47]:
+            raise UserError("Primero ponga el lead en un estado ganado")
 
         # Verificación de campos obligatorios en el lead (existente)
         if self.opportunity_id:
