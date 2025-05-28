@@ -159,24 +159,6 @@ class SaleOrder(models.Model):
         """Confirmación automática con creación de proyecto si no existe"""
         
 
-        if self.opportunity_id.stage_id.id not in [41,36,47]:
-            raise UserError("Primero ponga el lead en un estado ganado")
-
-        # Verificación de campos obligatorios en el lead (existente)
-        if self.opportunity_id:
-            campos_faltantes = []
-            for campo, descripcion in self.CAMPOS_OBLIGATORIOS.items():
-                if not self.opportunity_id[campo]:  
-                    campos_faltantes.append(f"⛔ {descripcion}")  # Agrega el icono rojo para mayor visibilidad
-            
-            if campos_faltantes:
-                raise UserError("⚠️ Campos Obligatorios para el PROYECTO Vacíos en el Lead ⚠️\n\n"
-                                "Los siguientes campos son obligatorios y están vacíos en el Lead:\n"
-                                + "\n".join(campos_faltantes))
-
-        
-
-        
         # Lógica especial para almacén Gremio
         if self.studio_almacen.id == 10:
             proyecto = self.env['project.project'].search([('name', '=', 'Gremio')], limit=1)
@@ -185,6 +167,28 @@ class SaleOrder(models.Model):
                 self.project_id = proyecto.id
             else:
                 raise UserError("No se encontró un proyecto con el nombre 'Gremio'.")
+        
+        else:
+            # Verificación de campos obligatorios en el lead (existente)
+            if self.opportunity_id:
+            
+                if self.opportunity_id.stage_id.id not in [41,36,47]:
+                    raise UserError("Primero ponga el lead en un estado ganado")
+
+                campos_faltantes = []
+                for campo, descripcion in self.CAMPOS_OBLIGATORIOS.items():
+                    if not self.opportunity_id[campo]:  
+                        campos_faltantes.append(f"⛔ {descripcion}")  # Agrega el icono rojo para mayor visibilidad
+                
+                if campos_faltantes:
+                    raise UserError("⚠️ Campos Obligatorios para el PROYECTO Vacíos en el Lead ⚠️\n\n"
+                                    "Los siguientes campos son obligatorios y están vacíos en el Lead:\n"
+                                    + "\n".join(campos_faltantes))
+
+        
+
+        
+        
 
         # Creación automática de proyecto si no existe
         if not self.project_id and self.opportunity_id:
