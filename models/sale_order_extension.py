@@ -167,7 +167,6 @@ class SaleOrder(models.Model):
                 self.project_id = proyecto.id
             else:
                 raise UserError("No se encontró un proyecto con el nombre 'Gremio'.")
-        
         else:
             # Verificación de campos obligatorios en el lead (existente)
             if self.opportunity_id:
@@ -246,6 +245,7 @@ class SaleOrder(models.Model):
                 
 
         return super().action_confirm()
+   
     
 
     def _apply_lead_vs_parent_field(self, project, opportunity, field_mapping):
