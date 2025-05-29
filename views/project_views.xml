@@ -25,6 +25,7 @@
                 <page string="Extras">
                     <group string="Información de Obra">
                         <field name="obra_nr"/>
+                        <field name="obra_padre_nr" readonly="1"/>
                         <field name="obra_padre_id"
                                options="{'no_create':True,'no_create_edit':True}"
                                domain="[('obra_padre_id', '=', False)]"/>  <!-- Dominio corregido -->
