@@ -171,7 +171,7 @@ class SaleOrder(models.Model):
             # Verificación de campos obligatorios en el lead (existente)
             if self.opportunity_id:
             
-                if self.opportunity_id.stage_id.id not in [41,36,47]:
+                if self.opportunity_id.stage_id.id not in [41,36,47,37,38]:
                     raise UserError("Primero ponga el lead en un estado ganado")
 
                 campos_faltantes = []
