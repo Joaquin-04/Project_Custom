@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError,UserError
 from psycopg2 import IntegrityError
 import re
 
@@ -85,7 +85,7 @@ class ProjectProject(models.Model):
         no_create=True,
         size=29,
         tracking=True,
-        
+        groups="Project_Custom.group_change_father_project"
     )
 
     color_proyect = fields.Many2one(
@@ -817,12 +817,111 @@ class ProjectProject(models.Model):
         if 'estado_obra_proyect' in vals:
             vals['obra_estd_fc_ulti_modi'] = fields.Date.context_today(self)
 
+        # Definir campos y sus propagaciones específicas por modelo
+        """
+        propagation_map = {
+            # Campo: {Modelo: campo_destino}
+            'obra_padre_id': {
+                'crm.lead': 'project_id',
+                'sale.order': 'project_id',
+                'stock.picking': 'project_id',
+            },
+            'name': {
+                'crm.lead': 'x_studio_nv_nombre_de_la_obra',
+                'sale.order': 'x_studio_nv_nombre_de_la_obra',
+            },
+            'direccion': {
+                'crm.lead': 'x_studio_nv_direccin',
+            },
+            'lnart_proyect': {
+                'crm.lead': 'x_studio_nv_linea',
+                'sale.order': 'x_studio_nv_linea',
+            },
+            'kg_perfileria': {
+                'crm.lead': 'x_studio_nv_kg_perfilera',
+                'sale.order': 'x_studio_nv_kg_perfilera',
+            },
+            # Agregar más campos según sea necesario
+        }
+        """
+        propagation_map = {
+            # Campo: {Modelo: campo_destino}
+            'obra_padre_id': {
+                'crm.lead': 'obra_padre_id', # project.project
+                'sale.order': 'x_studio_nv_numero_de_obra_padre', # entero que tiene que tomar el valor de obra_padre_nr del proyecto
+                'stock.picking': 'x_studio_nv_numero_de_obra_padre', # entero que tiene que tomar el valor de obra_padre_nr del proyecto
+            },
+        }
+
+        # Preparar cambios para cada modelo
+        changes = {
+            'crm.lead': {},
+            'sale.order': {},
+            'stock.picking': {},
+        }
+        # Identificar campos modificados que necesitan propagación
+        for field, model_map in propagation_map.items():
+            if field in vals:
+                for model_name, dest_field in model_map.items():
+                    if dest_field:
+                        changes[model_name][dest_field] = vals[field]
+
+        # Ejecutar escritura normal
+        res = super(ProjectProject, self).write(vals)
+        
+        # Manejo especial para la propagación de obra_padre_id
+        if 'obra_padre_id' in vals:
+            for project in self:
+                # Obtener el valor real de obra_padre_nr después de la escritura
+                nr_obra = project.obra_nr
+                parent_nr = project.obra_padre_nr 
+                
+                # Actualizar leads (campo Many2one)
+                if project.lead_ids:
+                    # Para leads, usamos el ID del proyecto padre
+                    
+                    padre = self.env['project.project'].search([('obra_nr','=',parent_nr)])
+                    project.lead_ids.write({
+                        'obra_padre_id': padre
+                    })
+                
+                # Actualizar órdenes de venta (campo char)
+                if project.sale_order_ids:
+                    # Para ventas, usamos el número de obra del padre
+                    project.sale_order_ids.write({
+                        'x_studio_nv_numero_de_obra_relacionada':nr_obra,
+                        'x_studio_nv_numero_de_obra_padre': parent_nr
+                    })
+                
+                # Actualizar remitos (campo char)
+                if project.stock_picking_ids:
+                    # Para remitos, usamos el número de obra del padre
+                    project.stock_picking_ids.write({
+                        'x_studio_nv_numero_de_obra_relacionada':nr_obra,
+                        'x_studio_nv_numero_de_obra_padre': parent_nr
+                    })
+
+        else:
+            #raise UserError(f" cambios:  {changes} \n{seld}")
+            # Propagación de cambios a registros relacionados
+            for project in self:
+                # Actualizar leads
+                if project.lead_ids and changes['crm.lead']:
+                    project.lead_ids.write(changes['crm.lead'])
+                
+                # Actualizar órdenes de venta
+                if project.sale_order_ids and changes['sale.order']:
+                    project.sale_order_ids.write(changes['sale.order'])
+                
+                # Actualizar remitos (solo campos específicos)
+                if project.stock_picking_ids and changes['stock.picking']:
+                    project.stock_picking_ids.write(changes['stock.picking'])
+
         
         
 
         
-        return super(ProjectProject, self).write(vals)
-
+        return res
 
 
 
