@@ -20,6 +20,13 @@
                 <attribute name="readonly">0</attribute>
             </xpath>
 
+            <!--Campo partner_id (Cliente ) requerido-->
+            <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">0</attribute>
+                <attribute name="required">1</attribute>
+                <attribute name="readonly">0</attribute>
+            </xpath>
+
             <!--Campo x_studio_nv_numero_de_obra_relacionada (NV Numero de obra relacionada ) sin requerido y solo lectura-->
             <xpath expr="//form[1]/sheet[1]/group[1]/group[@name='opportunity_partner']/field[@name='x_studio_nv_numero_de_obra_relacionada']" position="attributes">
                 <attribute name="required">0</attribute>
