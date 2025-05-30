@@ -28,7 +28,8 @@
                         <field name="obra_padre_nr" readonly="1"/>
                         <field name="obra_padre_id"
                                options="{'no_create':True,'no_create_edit':True}"
-                               domain="[('obra_padre_id', '=', False)]"/>  <!-- Dominio corregido -->
+                               domain="[('obra_padre_id', '=', False)]"
+                               groups="Project_Custom.group_change_father_project"/>
                         <field name="obra_padre_nr" invisible="1"/>
                         <field name="color_proyect"
                                options="{'no_create':True,'no_create_edit':True}"/>

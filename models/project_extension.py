@@ -85,7 +85,7 @@ class ProjectProject(models.Model):
         no_create=True,
         size=29,
         tracking=True,
-        groups="Project_Custom.group_change_father_project"
+        #groups="Project_Custom.group_change_father_project"
     )
 
     color_proyect = fields.Many2one(
@@ -396,9 +396,7 @@ class ProjectProject(models.Model):
             if project.obra_padre_id:
                 project['obra_padre_nr'] = project.obra_padre_id.obra_nr
 
-    
-
-    
+     
     
     @api.depends('company_id')
     def _compute_obra_ref_fisc_cd(self):
@@ -481,7 +479,6 @@ class ProjectProject(models.Model):
                 project.obra_estd_fc_ulti_modi = False
 
     
-
     
     @api.depends('obratipo_ubi')
     def _compute_cod_postal_proyect(self):
@@ -520,11 +517,6 @@ class ProjectProject(models.Model):
                 record.display_name = f"[{record.obra_nr}] {record.name}"
             else:
                 record.display_name = record.name
-
-    
-    
-    
-    
 
     _sql_constraints = [
         ('obra_nr_unique', 'UNIQUE(obra_nr)', '¡El número de obra debe ser único!'),
@@ -917,7 +909,7 @@ class ProjectProject(models.Model):
                     })
 
         else:
-            #raise UserError(f" cambios:  {changes} \n{seld}")
+            #raise UserError(f" cambios:  {changes} \n{self}")
             # Propagación de cambios a registros relacionados
             for project in self:
                 # Actualizar leads
