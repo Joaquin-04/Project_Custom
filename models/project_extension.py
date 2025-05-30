@@ -648,8 +648,6 @@ class ProjectProject(models.Model):
         #_logger.warning(f"rtn: {rtn}")
         return rtn
 
-    """
-
     @api.model
     def _name_search(self, name='', domain=None, operator='ilike', limit=100, order=None, name_get_uid=None):
         if domain is None:  
@@ -671,6 +669,23 @@ class ProjectProject(models.Model):
         
         _logger.warning(f"rtn: {rtn}")
         return rtn
+    """
+
+    @api.model
+    def _name_search(self, name='', domain=None, operator='ilike', limit=100, order=None, name_get_uid=None):
+        if domain is None:  
+            domain = []
+        
+        if name:
+            domain = ['|', ('obra_nr', operator, name), ('name', operator, name)] + domain
+        
+        # ELIMINAR CUALQUIER FILTRO RELACIONADO CON EMPRESAS
+        # 1. Quitar cualquier condición existente sobre company_id
+        domain = [d for d in domain if d[0] != 'company_id']
+        
+        # 2. Buscar sin restricciones de empresa
+        return self._search(domain, limit=limit, order=order)
+
 
         
 
