@@ -24,7 +24,7 @@
             <xpath expr="//notebook" position="inside">
                 <page string="Extras">
                     <group string="Información de Obra">
-                        <field name="obra_nr"/>
+                        <field name="obra_nr" readonly="1"/>
                         <field name="obra_padre_nr" readonly="1"/>
                         <field name="obra_padre_id"
                                options="{'no_create':True,'no_create_edit':True}"
@@ -35,7 +35,7 @@
                                options="{'no_create':True,'no_create_edit':True}"/>
                         <field name="estado_obra_proyect"
                                options="{'no_create':True,'no_create_edit':True}"/>
-                        <field name="obra_estd_fc_ulti_modi"/>
+                        <field name="obra_estd_fc_ulti_modi" readonly="1"/>
                         <field name="lnart_proyect"
                                options="{'no_create':True,'no_create_edit':True}"/> 
                         <field name="obratipo_proyect"
@@ -51,7 +51,7 @@
                     </group>
                     
                     <group string="Fechas y Contactos">
-                        <field name="fecha_aprobacion_presupuesto"/>
+                        <field name="fecha_aprobacion_presupuesto" readonly="1"/>
                         <field name="celular_1"/>
                         <field name="telefono_fijo"/>
                         <field name="fax_1"/>
