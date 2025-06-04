@@ -62,7 +62,7 @@ class ProjectProject(models.Model):
         string="Número de Obra",
         #readonly=True,
         #copy=False,
-        readonly=True,
+        #readonly=True,
         copy=False,
         store=True,
         size=5,
@@ -105,9 +105,10 @@ class ProjectProject(models.Model):
     obra_estd_fc_ulti_modi = fields.Date(
         string="Última Modif. Estado de Obra",
         #readonly=True,
-        readonly=True,
+        #readonly=True,
         help="Fecha en que se modificó por última vez el estado de la obra.",
-        tracking=True
+        tracking=True,
+        store=True
     )
 
     # CRM (x_studio_nv_linea)
@@ -182,7 +183,6 @@ class ProjectProject(models.Model):
     fecha_aprobacion_presupuesto = fields.Date(
         string="Fecha Aprob. Presupuesto",
         #compute="_compute_fecha_aprobacion_presupuesto",
-        compute="_compute_fecha_aprobacion_presupuesto",
         store=True,
         help="Fecha de aprobación de presupuesto (solo fecha, sin hora)",
         tracking=True
@@ -679,14 +679,13 @@ class ProjectProject(models.Model):
         return self._search(domain, limit=limit, order=order)
 
 
-        
-
-    
-
-    
-
     @api.model
     def create(self, vals):
+        is_excel_import = self.env.context.get('import_file', False)
+        _logger.warning(f"=== INICIO CREACIÓN DE PROYECTO ===")
+        _logger.warning(f"Contexto: {self.env.context}")
+        _logger.warning(f"Es importación Excel? {'SÍ' if is_excel_import else 'NO'}")
+        _logger.warning(f"Valores recibidos: {vals}")
         """
         Sobreescritura del método create para:
         1. Limpiar formatos de teléfono
@@ -703,232 +702,255 @@ class ProjectProject(models.Model):
         Registra en:
         - project.sequence.log: Auditoría de numeración
         """
-        # Definir una función para limpiar los números de teléfono
-        def limpiar_numero_telefono(numero):
-            if numero:
-                # Eliminar todos los caracteres no numéricos incluyendo '+' y espacios
-                numero_limpio = re.sub(r'[^\d]', '', numero)
-                # Eliminar ceros iniciales si es necesario (opcional)
-                return numero_limpio.lstrip('0') if numero_limpio else None
-            return numero
 
-        # Limpiar los campos de números de teléfono
-        campos_telefono = ['celular_1', 'telefono_fijo', 'fax_1', 'fax_2']
-        for campo in campos_telefono:
-            if campo in vals:
-                vals[campo] = limpiar_numero_telefono(vals[campo])
-
-
-        if 'kg_perfileria' in vals:
-            vals['kg_perfileria']=round(vals['kg_perfileria'])
-
-
+        if not is_excel_import:
         
-        # Asignar la compañía si no se proporcionó
-        if not vals.get('company_id'):
-            vals['company_id'] = self.env.company.id
-
-        
-        # Crear cuenta analítica automáticamente
-        if not vals.get('analytic_account_id'):
-            analytic_account = self.env['account.analytic.account'].create({
-                'name': vals.get('name'),
-                'company_id': vals['company_id'],
-                'plan_id': 1,
-            })
-            vals['analytic_account_id'] = analytic_account.id
-
-        
-        #Por defecto poner el estado de la obra en 2001
-        estado_de_iniciio = self.env['project.obraestado'].search([('cod','=','2001')],limit=1)
-        if estado_de_iniciio:
-            vals['estado_obra_proyect'] = estado_de_iniciio.id
-
-        
-
-        try:
+            # Definir una función para limpiar los números de teléfono
+            def limpiar_numero_telefono(numero):
+                if numero:
+                    # Eliminar todos los caracteres no numéricos incluyendo '+' y espacios
+                    numero_limpio = re.sub(r'[^\d]', '', numero)
+                    # Eliminar ceros iniciales si es necesario (opcional)
+                    return numero_limpio.lstrip('0') if numero_limpio else None
+                return numero
+    
+            # Limpiar los campos de números de teléfono
+            campos_telefono = ['celular_1', 'telefono_fijo', 'fax_1', 'fax_2']
+            for campo in campos_telefono:
+                if campo in vals:
+                    vals[campo] = limpiar_numero_telefono(vals[campo])
+    
+    
+            if 'kg_perfileria' in vals:
+                vals['kg_perfileria']=round(vals['kg_perfileria'])
+    
+    
+            
+            # Asignar la compañía si no se proporcionó
+            if not vals.get('company_id'):
+                vals['company_id'] = self.env.company.id
+    
+            
+            # Crear cuenta analítica automáticamente
+            if not vals.get('analytic_account_id'):
+                analytic_account = self.env['account.analytic.account'].create({
+                    'name': vals.get('name'),
+                    'company_id': vals['company_id'],
+                    'plan_id': 1,
+                })
+                vals['analytic_account_id'] = analytic_account.id
+    
+            
+            #Por defecto poner el estado de la obra en 2001
+            estado_de_iniciio = self.env['project.obraestado'].search([('cod','=','2001')],limit=1)
+            if estado_de_iniciio:
+                vals['estado_obra_proyect'] = estado_de_iniciio.id
+    
+            
+    
+            try:
+                # Intentar crear el proyecto
+                record = super(ProjectProject, self).create(vals)
+                # Setear las fechas si no fueron enviadas
+                
+                fecha = record.create_date if record.create_date else fields.Datetime.now()
+    
+                record.fecha_aprobacion_presupuesto = fecha
+                record.obra_estd_fc_ulti_modi = fecha
+    
+                # Generar número de obra secuencial y asignarlo al proyecto
+                next_value = self.env['ir.sequence'].next_by_code('custom.project.number')
+                record.write({'obra_nr': next_value})
+    
+                # Registrar el log de auditoría para creación exitosa
+                audit_vals = {
+                    'project_id': record.id,
+                    'sequence_number': next_value,
+                    'user_id': self.env.uid,
+                    'company_id': record.company_id.id,
+                    'state': 'success',
+                    'message': 'Proyecto creado y secuencia asignada exitosamente.'
+                }
+                self.env['project.sequence.log'].sudo().create(audit_vals)
+    
+                
+                return record
+    
+            except ValidationError as ve:
+                # Registrar el log de auditoría para errores de validación
+                audit_vals = {
+                    'project_id': False,
+                    'sequence_number': None,
+                    'user_id': self.env.uid,
+                    'company_id': vals.get('company_id'),
+                    'state': 'error',
+                    'message': f'Error de validación al crear el proyecto: {str(ve)}',
+                    'data': vals
+                }
+                self.env['project.sequence.log'].sudo().create(audit_vals)
+                _logger.error(f"Error de validación al crear el proyecto: {str(ve)}")
+                raise ve
+    
+            except IntegrityError as ie:
+                # Registrar el log de auditoría para errores de integridad
+                audit_vals = {
+                    'project_id': False,
+                    'sequence_number': None,
+                    'user_id': self.env.uid,
+                    'company_id': vals.get('company_id'),
+                    'state': 'error',
+                    'message': f'Error de integridad al crear el proyecto: {str(ie)}',
+                    'data': vals
+                }
+                self.env['project.sequence.log'].sudo().create(audit_vals)
+                _logger.error(f"Error de integridad al crear el proyecto: {str(ie)}")
+                raise ValidationError(_('Ocurrió un error de integridad al crear el proyecto. Por favor, inténtelo de nuevo.'))
+    
+            except Exception as e:
+                # Registrar el log de auditoría para errores generales
+                audit_vals = {
+                    'project_id': False,
+                    'sequence_number': None,
+                    'user_id': self.env.uid,
+                    'company_id': vals.get('company_id'),
+                    'state': 'error',
+                    'message': f'Error general al crear el proyecto: {str(e)}',
+                    'data': vals
+                }
+                self.env['project.sequence.log'].sudo().create(audit_vals)
+                _logger.error(f"Error general al crear el proyecto: {str(e)}")
+                raise ValidationError(_('Ocurrió un error al crear el proyecto. Por favor, inténtelo de nuevo.'))
+        else:
             # Intentar crear el proyecto
             record = super(ProjectProject, self).create(vals)
-
-            # Generar número de obra secuencial y asignarlo al proyecto
-            next_value = self.env['ir.sequence'].next_by_code('custom.project.number')
-            record.write({'obra_nr': next_value})
-
-            # Registrar el log de auditoría para creación exitosa
-            audit_vals = {
-                'project_id': record.id,
-                'sequence_number': next_value,
-                'user_id': self.env.uid,
-                'company_id': record.company_id.id,
-                'state': 'success',
-                'message': 'Proyecto creado y secuencia asignada exitosamente.'
-            }
-            self.env['project.sequence.log'].sudo().create(audit_vals)
-
-            
             return record
 
-        except ValidationError as ve:
-            # Registrar el log de auditoría para errores de validación
-            audit_vals = {
-                'project_id': False,
-                'sequence_number': None,
-                'user_id': self.env.uid,
-                'company_id': vals.get('company_id'),
-                'state': 'error',
-                'message': f'Error de validación al crear el proyecto: {str(ve)}',
-                'data': vals
-            }
-            self.env['project.sequence.log'].sudo().create(audit_vals)
-            _logger.error(f"Error de validación al crear el proyecto: {str(ve)}")
-            raise ve
-
-        except IntegrityError as ie:
-            # Registrar el log de auditoría para errores de integridad
-            audit_vals = {
-                'project_id': False,
-                'sequence_number': None,
-                'user_id': self.env.uid,
-                'company_id': vals.get('company_id'),
-                'state': 'error',
-                'message': f'Error de integridad al crear el proyecto: {str(ie)}',
-                'data': vals
-            }
-            self.env['project.sequence.log'].sudo().create(audit_vals)
-            _logger.error(f"Error de integridad al crear el proyecto: {str(ie)}")
-            raise ValidationError(_('Ocurrió un error de integridad al crear el proyecto. Por favor, inténtelo de nuevo.'))
-
-        except Exception as e:
-            # Registrar el log de auditoría para errores generales
-            audit_vals = {
-                'project_id': False,
-                'sequence_number': None,
-                'user_id': self.env.uid,
-                'company_id': vals.get('company_id'),
-                'state': 'error',
-                'message': f'Error general al crear el proyecto: {str(e)}',
-                'data': vals
-            }
-            self.env['project.sequence.log'].sudo().create(audit_vals)
-            _logger.error(f"Error general al crear el proyecto: {str(e)}")
-            raise ValidationError(_('Ocurrió un error al crear el proyecto. Por favor, inténtelo de nuevo.'))
-
+    
 
     def write(self, vals):
+        is_excel_import = self.env.context.get('import_file', False)
+        _logger.warning(f"=== INICIO ACTUALIZACIÓN DE PROYECTO ===")
+        _logger.warning(f"Contexto: {self.env.context}")
+        _logger.warning(f"Es importación Excel? {'SÍ' if is_excel_import else 'NO'}")
+        _logger.warning(f"Actualizando proyectos con IDs: {self.ids}")
+        _logger.warning(f"Valores recibidos: {vals}")
         """
         Actualización de proyectos:
         - Actualiza fecha de modificación de estado automáticamente
         - Propaga cambios a registros relacionados
         """
-        # Si se está cambiando el estado de obra, se actualiza la fecha a la fecha actual.
-        if 'estado_obra_proyect' in vals:
-            vals['obra_estd_fc_ulti_modi'] = fields.Date.context_today(self)
-
-        # Definir campos y sus propagaciones específicas por modelo
-        """
-        propagation_map = {
-            # Campo: {Modelo: campo_destino}
-            'obra_padre_id': {
-                'crm.lead': 'project_id',
-                'sale.order': 'project_id',
-                'stock.picking': 'project_id',
-            },
-            'name': {
-                'crm.lead': 'x_studio_nv_nombre_de_la_obra',
-                'sale.order': 'x_studio_nv_nombre_de_la_obra',
-            },
-            'direccion': {
-                'crm.lead': 'x_studio_nv_direccin',
-            },
-            'lnart_proyect': {
-                'crm.lead': 'x_studio_nv_linea',
-                'sale.order': 'x_studio_nv_linea',
-            },
-            'kg_perfileria': {
-                'crm.lead': 'x_studio_nv_kg_perfilera',
-                'sale.order': 'x_studio_nv_kg_perfilera',
-            },
-            # Agregar más campos según sea necesario
-        }
-        """
-        propagation_map = {
-            # Campo: {Modelo: campo_destino}
-            'obra_padre_id': {
-                'crm.lead': 'obra_padre_id', # project.project
-                'sale.order': 'x_studio_nv_numero_de_obra_padre', # entero que tiene que tomar el valor de obra_padre_nr del proyecto
-                'stock.picking': 'x_studio_nv_numero_de_obra_padre', # entero que tiene que tomar el valor de obra_padre_nr del proyecto
-            },
-        }
-
-        # Preparar cambios para cada modelo
-        changes = {
-            'crm.lead': {},
-            'sale.order': {},
-            'stock.picking': {},
-        }
-        # Identificar campos modificados que necesitan propagación
-        for field, model_map in propagation_map.items():
-            if field in vals:
-                for model_name, dest_field in model_map.items():
-                    if dest_field:
-                        changes[model_name][dest_field] = vals[field]
-
-        # Ejecutar escritura normal
-        res = super(ProjectProject, self).write(vals)
-        
-        # Manejo especial para la propagación de obra_padre_id
-        if 'obra_padre_id' in vals:
-            for project in self:
-                # Obtener el valor real de obra_padre_nr después de la escritura
-                nr_obra = project.obra_nr
-                parent_nr = project.obra_padre_nr 
-                
-                # Actualizar leads (campo Many2one)
-                if project.lead_ids:
-                    # Para leads, usamos el ID del proyecto padre
+        if not is_excel_import:
+            # Si se está cambiando el estado de obra, se actualiza la fecha a la fecha actual.
+            if 'estado_obra_proyect' in vals:
+                vals['obra_estd_fc_ulti_modi'] = fields.Date.context_today(self)
+    
+            # Definir campos y sus propagaciones específicas por modelo
+            """
+            propagation_map = {
+                # Campo: {Modelo: campo_destino}
+                'obra_padre_id': {
+                    'crm.lead': 'project_id',
+                    'sale.order': 'project_id',
+                    'stock.picking': 'project_id',
+                },
+                'name': {
+                    'crm.lead': 'x_studio_nv_nombre_de_la_obra',
+                    'sale.order': 'x_studio_nv_nombre_de_la_obra',
+                },
+                'direccion': {
+                    'crm.lead': 'x_studio_nv_direccin',
+                },
+                'lnart_proyect': {
+                    'crm.lead': 'x_studio_nv_linea',
+                    'sale.order': 'x_studio_nv_linea',
+                },
+                'kg_perfileria': {
+                    'crm.lead': 'x_studio_nv_kg_perfilera',
+                    'sale.order': 'x_studio_nv_kg_perfilera',
+                },
+                # Agregar más campos según sea necesario
+            }
+            """
+            propagation_map = {
+                # Campo: {Modelo: campo_destino}
+                'obra_padre_id': {
+                    'crm.lead': 'obra_padre_id', # project.project
+                    'sale.order': 'x_studio_nv_numero_de_obra_padre', # entero que tiene que tomar el valor de obra_padre_nr del proyecto
+                    'stock.picking': 'x_studio_nv_numero_de_obra_padre', # entero que tiene que tomar el valor de obra_padre_nr del proyecto
+                },
+            }
+    
+            # Preparar cambios para cada modelo
+            changes = {
+                'crm.lead': {},
+                'sale.order': {},
+                'stock.picking': {},
+            }
+            # Identificar campos modificados que necesitan propagación
+            for field, model_map in propagation_map.items():
+                if field in vals:
+                    for model_name, dest_field in model_map.items():
+                        if dest_field:
+                            changes[model_name][dest_field] = vals[field]
+    
+            # Ejecutar escritura normal
+            res = super(ProjectProject, self).write(vals)
+            
+            # Manejo especial para la propagación de obra_padre_id
+            if 'obra_padre_id' in vals:
+                for project in self:
+                    # Obtener el valor real de obra_padre_nr después de la escritura
+                    nr_obra = project.obra_nr
+                    parent_nr = project.obra_padre_nr 
                     
-                    padre = self.env['project.project'].search([('obra_nr','=',parent_nr)])
-                    project.lead_ids.write({
-                        'obra_padre_id': padre
-                    })
-                
-                # Actualizar órdenes de venta (campo char)
-                if project.sale_order_ids:
-                    # Para ventas, usamos el número de obra del padre
-                    project.sale_order_ids.write({
-                        'x_studio_nv_numero_de_obra_relacionada':nr_obra,
-                        'x_studio_nv_numero_de_obra_padre': parent_nr
-                    })
-                
-                # Actualizar remitos (campo char)
-                if project.stock_picking_ids:
-                    # Para remitos, usamos el número de obra del padre
-                    project.stock_picking_ids.write({
-                        'x_studio_nv_numero_de_obra_relacionada':nr_obra,
-                        'x_studio_nv_numero_de_obra_padre': parent_nr
-                    })
-
+                    # Actualizar leads (campo Many2one)
+                    if project.lead_ids:
+                        # Para leads, usamos el ID del proyecto padre
+                        
+                        padre = self.env['project.project'].search([('obra_nr','=',parent_nr)])
+                        project.lead_ids.write({
+                            'obra_padre_id': padre
+                        })
+                    
+                    # Actualizar órdenes de venta (campo char)
+                    if project.sale_order_ids:
+                        # Para ventas, usamos el número de obra del padre
+                        project.sale_order_ids.write({
+                            'x_studio_nv_numero_de_obra_relacionada':nr_obra,
+                            'x_studio_nv_numero_de_obra_padre': parent_nr
+                        })
+                    
+                    # Actualizar remitos (campo char)
+                    if project.stock_picking_ids:
+                        # Para remitos, usamos el número de obra del padre
+                        project.stock_picking_ids.write({
+                            'x_studio_nv_numero_de_obra_relacionada':nr_obra,
+                            'x_studio_nv_numero_de_obra_padre': parent_nr
+                        })
+    
+            else:
+                #raise UserError(f" cambios:  {changes} \n{self}")
+                # Propagación de cambios a registros relacionados
+                for project in self:
+                    # Actualizar leads
+                    if project.lead_ids and changes['crm.lead']:
+                        project.lead_ids.write(changes['crm.lead'])
+                    
+                    # Actualizar órdenes de venta
+                    if project.sale_order_ids and changes['sale.order']:
+                        project.sale_order_ids.write(changes['sale.order'])
+                    
+                    # Actualizar remitos (solo campos específicos)
+                    if project.stock_picking_ids and changes['stock.picking']:
+                        project.stock_picking_ids.write(changes['stock.picking'])
+    
+            
+            
+    
+            
+            return res
         else:
-            #raise UserError(f" cambios:  {changes} \n{self}")
-            # Propagación de cambios a registros relacionados
-            for project in self:
-                # Actualizar leads
-                if project.lead_ids and changes['crm.lead']:
-                    project.lead_ids.write(changes['crm.lead'])
-                
-                # Actualizar órdenes de venta
-                if project.sale_order_ids and changes['sale.order']:
-                    project.sale_order_ids.write(changes['sale.order'])
-                
-                # Actualizar remitos (solo campos específicos)
-                if project.stock_picking_ids and changes['stock.picking']:
-                    project.stock_picking_ids.write(changes['stock.picking'])
-
-        
-        
-
-        
-        return res
-
-
+            # Ejecutar escritura normal
+            res = super(ProjectProject, self).write(vals)
+            return res
 
