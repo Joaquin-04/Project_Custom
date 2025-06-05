@@ -284,6 +284,17 @@ class CrmLead(models.Model):
     #Funciones bases de odoo
     ##################################################################################################################
 
+    def unlink(self):
+        # IDs de etapas que no permiten eliminación (ganadas, cerradas, etc.)
+        etapas_protegidas = [41, 36, 47, 37, 38]
+
+        for lead in self:
+            if lead.stage_id.id in etapas_protegidas:
+                raise ValidationError(_("No se puede eliminar una oportunidad que está en una etapa ganada o cerrada."))
+
+        return super(CrmLead, self).unlink()
+
+
     def write(self, vals):
 
         """
