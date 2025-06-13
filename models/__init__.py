@@ -14,3 +14,4 @@ from . import project_cartel_obra
 from . import project_sequence_log
 from . import change_obra_nr_wizard
 from . import stock_picking_extension
+from . import account_analytic_account

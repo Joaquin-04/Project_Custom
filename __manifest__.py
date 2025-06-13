@@ -8,6 +8,7 @@
         'sale',
         'purchase',
         'stock',
+        'account'
         #'material_reservation',
     ],
     'data': [
